@@ -1,4 +1,4 @@
-package javakanban.data;
+package javakanban.model;
 
 public enum Status {
     NEW,
