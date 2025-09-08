@@ -6,19 +6,19 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Поехали!");
 
-        TaskManager taskManager=new TaskManager();
+        TaskManager taskManager = new TaskManager();
         System.out.println("================ Тест 1 ==================");
         System.out.println("Добавляем две Задачи");
-        Task task1=new Task("Сдать спринт 4", "Необходимо сдать 4 спринт для продолжения обучения");
-        Task task2=new Task("Пройти теорию 5 спринта", "Необходимо сдать 5 спринт для продолжения обучения");
+        Task task1 = new Task("Сдать спринт 4", "Необходимо сдать 4 спринт для продолжения обучения");
+        Task task2 = new Task("Пройти теорию 5 спринта", "Необходимо сдать 5 спринт для продолжения обучения");
         taskManager.addTask(task1);
         taskManager.addTask(task2);
         System.out.println("Результат добавления:\n" + taskManager.getTasks());
 
         System.out.println("\n================ Тест 2 ==================");
         System.out.println("Обновляет Задачу id=2");
-        Task newTask2=new Task(2, "Пройти теорию 5 спринта, обновленная задача",
-                "Необходимо сдать 5 спринт для продолжения обучения",Status.IN_PROGRESS);
+        Task newTask2 = new Task(2, "Пройти теорию 5 спринта, обновленная задача",
+                "Необходимо сдать 5 спринт для продолжения обучения", Status.IN_PROGRESS);
         taskManager.updateTask(newTask2);
         System.out.println("Содержимое tasks:\n" + taskManager.getTasks());
 
@@ -37,18 +37,18 @@ public class Main {
 
         System.out.println("\n================ Тест 6 ==================");
         System.out.println("Добавляем два эпика");
-        Epic epic1=new Epic("Эпик 1: Сдать спринт 4", "Описание Эпика 1");
-        Epic epic2=new Epic("Эпик 2: Сдать спринт 5", "Описание Эпика 2");
-        Epic addedEpic1=taskManager.addEpic(epic1);
+        Epic epic1 = new Epic("Эпик 1: Сдать спринт 4", "Описание Эпика 1");
+        Epic epic2 = new Epic("Эпик 2: Сдать спринт 5", "Описание Эпика 2");
+        Epic addedEpic1 = taskManager.addEpic(epic1);
         taskManager.addEpic(epic2);
         System.out.println("Содержимое Epics:\n" + taskManager.getEpics());
 
         System.out.println("\n================ Тест 7 ==================");
         System.out.println("\nДобавляем в эпики по две подзадачи");
-        Subtask subtask1=new Subtask("Подзадача 1 Эпика 1: Реализовать ТЗ", "Описание Подзадача 1");
-        Subtask subtask2=new Subtask("Подзадача 2 Эпика 1: Отправить ТЗ на проверку", "Описание Подзадача 2");
-        Subtask subtask3=new Subtask("Подзадача 1 Эпика 2: Пройти теорию Спринта 5", "Описание Подзадача 1");
-        Subtask subtask4=new Subtask("Подзадача 2 Эпика 2: Реализовать ТЗ", "Описание Подзадача 2");
+        Subtask subtask1 = new Subtask("Подзадача 1 Эпика 1: Реализовать ТЗ", "Описание Подзадача 1");
+        Subtask subtask2 = new Subtask("Подзадача 2 Эпика 1: Отправить ТЗ на проверку", "Описание Подзадача 2");
+        Subtask subtask3 = new Subtask("Подзадача 1 Эпика 2: Пройти теорию Спринта 5", "Описание Подзадача 1");
+        Subtask subtask4 = new Subtask("Подзадача 2 Эпика 2: Реализовать ТЗ", "Описание Подзадача 2");
         subtask1.setEpicId(addedEpic1.getId());
         taskManager.addSubtask(subtask1);
         subtask2.setEpicId(epic1.getId());
@@ -88,7 +88,7 @@ public class Main {
 
         System.out.println("\n================ Тест 12 ==================");
         System.out.println("Добавляем Эпик");
-        Subtask subtask5=new Subtask("Подзадача 1 Эпика 2: Реализовать ТЗ", "Описание Подзадача 1");
+        Subtask subtask5 = new Subtask("Подзадача 1 Эпика 2: Реализовать ТЗ", "Описание Подзадача 1");
         subtask5.setEpicId(epic2.getId());
         taskManager.addSubtask(subtask5);
         System.out.println("Содержимое Epics:\n" + taskManager.getEpics());
@@ -100,7 +100,7 @@ public class Main {
 
         System.out.println("\n================ Тест 13 ==================");
         System.out.println("Обновление Эпика");
-        Epic epic3=new Epic("Обновленный Эпик 2: Сдать спринт 5", "Описание Эпика 2");
+        Epic epic3 = new Epic("Обновленный Эпик 2: Сдать спринт 5", "Описание Эпика 2");
         epic3.setId(3);
         taskManager.updateEpic(epic3);
         System.out.println("Содержимое Epics:\n" + taskManager.getEpics());
@@ -108,7 +108,7 @@ public class Main {
 
         System.out.println("\n================ Тест 14 ==================");
         System.out.println("Добавляем Эпик");
-        Subtask subtask6=new Subtask("Подзадача 1 Эпика 1: Реализовать ТЗ", "Описание Подзадача 1");
+        Subtask subtask6 = new Subtask("Подзадача 1 Эпика 1: Реализовать ТЗ", "Описание Подзадача 1");
         subtask6.setEpicId(epic1.getId());
         taskManager.addSubtask(subtask6);
         System.out.println("Содержимое Epics:\n" + taskManager.getEpics());
@@ -117,15 +117,5 @@ public class Main {
         taskManager.delEpics();
         System.out.println("Содержимое Epics:\n" + taskManager.getEpics());
         System.out.println("Содержимое Subtasks:\n" + taskManager.getSubtasks());
-
-
-
-
-
-
-
-
-
-
     }
 }

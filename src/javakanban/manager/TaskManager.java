@@ -33,7 +33,6 @@ public class TaskManager {
     }
 
 
-
     public Epic addEpic(Epic epic) {
         epic.setId(getNextId());
         epics.put(epic.getId(), epic);
@@ -109,7 +108,7 @@ public class TaskManager {
         int countStatusNEW = 0;
         int countStatusIN_PROGRESS = 0;
         int countStatusDONE = 0;
-        Epic epic=epics.get(id);
+        Epic epic = epics.get(id);
         for (int findId : epic.getSubtasksId()) {
             switch (subtasks.get(findId).getStatus()) {
                 case Status.NEW:
@@ -122,11 +121,10 @@ public class TaskManager {
                     countStatusDONE++;
             }
         }
-        if (countStatusIN_PROGRESS==0 && countStatusDONE==0) {
+        if (countStatusIN_PROGRESS == 0 && countStatusDONE == 0) {
             epic.setStatus(Status.NEW);
             return;
-        }
-        else if (countStatusNEW==0 && countStatusIN_PROGRESS==0 && countStatusDONE>0) {
+        } else if (countStatusNEW == 0 && countStatusIN_PROGRESS == 0 && countStatusDONE > 0) {
             epic.setStatus(Status.DONE);
             return;
         } else {
@@ -135,13 +133,12 @@ public class TaskManager {
 
     }
 
-
     public void delTaskById(int id) {
         tasks.remove(id);
     }
 
     public void delSubtaskById(int id) {
-        int epicId=subtasks.get(id).getEpicId();
+        int epicId = subtasks.get(id).getEpicId();
         subtasks.remove(id);
         epics.get(epicId).removeSubtaskId(id);
         calculateEpicByIDStatus(epicId);
@@ -157,6 +154,4 @@ public class TaskManager {
             }
         }
     }
-
-
 }
