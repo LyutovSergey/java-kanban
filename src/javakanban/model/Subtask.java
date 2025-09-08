@@ -1,10 +1,29 @@
 package javakanban.model;
 
 public class Subtask extends Task{
-    private int epicID; // Внешний ключ для Epic
+    private int epicId; // Внешний ключ для Epic
 
-    public Subtask(int id,String name, String description, int epicID) {
-        super(id, name, description);
-        this.epicID = epicID;
+    public Subtask(String name, String description) {
+        super( name, description);
+
 }
+
+    public int getEpicId() {
+        return epicId;
+    }
+
+    public void setEpicId(int epicID) {
+        this.epicId = epicID;
+    }
+
+    @Override
+    public String toString() {
+        return "\nSubtask{" +
+                "epicId=" + epicId  +
+                ", id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", description='" + getDescription() + '\'' +
+                ", status=" + getStatus() +
+                '}';
+    }
 }

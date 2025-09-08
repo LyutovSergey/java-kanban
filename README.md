@@ -1,2 +1,5 @@
 # java-kanban
-Repository for homework project.
+https://github.com/LyutovSergey/java-kanban.git
+
+
+Студент Сергей Лютов
