@@ -1,18 +1,21 @@
 package javakanban.model;
 import java.util.ArrayList;
 
-
 public class Epic extends Task {
-    private ArrayList<Integer> subtasksId;
-
+    final private ArrayList<Integer> subtasksId;
 
     public Epic(String name, String description) {
-        super(name, description);
+        super(name, description, Status.NEW);
         this.subtasksId = new ArrayList<>();
     }
 
+    public Epic(Epic epic) {
+        super(epic.id, epic.name, epic.description, epic.status);
+        this.subtasksId = new ArrayList<>(epic.subtasksId);
+    }
+
     public ArrayList<Integer> getSubtasksId() {
-        return subtasksId;
+        return new ArrayList<>(this.subtasksId);
     }
 
     public void addSubtaskId(int id) {

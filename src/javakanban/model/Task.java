@@ -2,22 +2,29 @@ package javakanban.model;
 import java.util.Objects;
 
 public class Task {
-    private int id; // Уникальный идентификационный номер
-    private String name;
-    private String description;
-    private Status status;
+    protected int id; // Уникальный идентификационный номер
+    protected String name;
+    protected String description;
+    protected Status status;
 
-    public Task( String name, String description) {
+    public Task(String name, String description, Status status) {
+        this.status = status;
         this.description = description;
         this.name = name;
-        this.status =Status.NEW;
     }
 
-    public Task(int id, String name, String description,Status status) {
+    public Task(int id, String name, String description, Status status) {
         this.id = id;
         this.status = status;
         this.description = description;
         this.name = name;
+    }
+
+    public Task(Task task) { // на теории сообщили, что нужно помещать и возвращать копии объектов
+        this.id = task.id;
+        this.status = task.status;
+        this.description = task.description;
+        this.name = task.name;
     }
 
     @Override
@@ -64,5 +71,13 @@ public class Task {
 
     public String getDescription() {
         return description;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
