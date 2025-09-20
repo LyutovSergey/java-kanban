@@ -4,15 +4,12 @@ import javakanban.model.*;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Поехали!");
+
         TaskManager manager = Managers.getDefault();
 
         Task task1 ,task2;
-        Task savedTask;
         Epic epic1, epic2;
-        Epic savedEpic;
         Subtask subtask1, subtask2, subtask3;
-        Subtask savedSubtask;
 
         task1 = new Task("Задача 1", "Описание задачи 1", Status.NEW);
         task2 = new Task("Задача 2", "Описание задачи 2", Status.NEW);
