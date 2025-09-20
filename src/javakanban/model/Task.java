@@ -2,7 +2,7 @@ package javakanban.model;
 import java.util.Objects;
 
 public class Task {
-    protected int id; // Уникальный идентификационный номер
+    protected Integer id; // Уникальный идентификационный номер
     protected String name;
     protected String description;
     protected Status status;
@@ -31,7 +31,7 @@ public class Task {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id;
+        return id.equals(task.id);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class Task {
         this.id = id;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
