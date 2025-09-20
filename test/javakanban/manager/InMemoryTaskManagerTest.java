@@ -146,7 +146,7 @@ class InMemoryTaskManagerTest {
         // Проверка на подмену Id
         savedSubtask= taskManager.getSubtaskById(subtask3.getId());
         savedSubtask.setId(subtask3.getEpicId());
-        assertNull(taskManager.updateSubtask(savedSubtask), "Удалось подменить Id.");;
+        assertNull(taskManager.updateSubtask(savedSubtask), "Удалось подменить Id.");
     }
 
     @Test
@@ -215,6 +215,8 @@ class InMemoryTaskManagerTest {
     void delSubtaskById() {
         taskManager.delSubtaskById(subtask1.getId());
         assertNull(taskManager.getSubtaskById(subtask1.getId()), "Подзадача 1 не удалилась.");
+        assertFalse(taskManager.getEpicById(subtask1.getEpicId()).getSubtasksId().contains(subtask1.getId()),
+                                                                "Подзадача 1 не удалилась из Эпика.");
     }
 
     @Test
