@@ -4,6 +4,8 @@ import javakanban.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -110,7 +112,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void getSubtasksOfEpicById() {
-        ArrayList<Subtask> subtasks = new ArrayList<>(taskManager.getSubtasksOfEpicById(epic1.getId()));
+        List<Subtask> subtasks = new ArrayList<>(taskManager.getSubtasksOfEpicById(epic1.getId()));
         assertEquals(2, subtasks.size(), "Вернулся массив подзадач неверного размера.");
         assertTrue(subtasks.contains(subtask1),"В Эпике 1 отсутствует Подзадача 1.");
         assertTrue(subtasks.contains(subtask2),"В Эпике 1 отсутствует Подзадача 2.");
@@ -163,7 +165,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void getEpics() {
-        ArrayList<Epic> epics = new ArrayList<>(taskManager.getEpics());
+        List<Epic> epics = new ArrayList<>(taskManager.getEpics());
         assertEquals(2, epics.size(), "Вернулся массив Эпиков неверного размера.");
         assertTrue(epics.contains(epic1),"Эпик 1 отсутствует.");
         assertTrue(epics.contains(epic2),"Эпик 2 отсутствует.");
@@ -171,7 +173,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void getSubtasks() {
-        ArrayList<Subtask> subtasks = new ArrayList<>(taskManager.getSubtasks());
+        List<Subtask> subtasks = new ArrayList<>(taskManager.getSubtasks());
         assertEquals(3, subtasks.size(), "Вернулся массив Эпиков неверного размера.");
         assertTrue(subtasks.contains(subtask1),"Подзадача 1 отсутствует.");
         assertTrue(subtasks.contains(subtask2),"Подзадача 2 отсутствует.");

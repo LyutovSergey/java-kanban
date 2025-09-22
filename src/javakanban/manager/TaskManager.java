@@ -3,8 +3,6 @@ package javakanban.manager;
 import javakanban.model.Epic;
 import javakanban.model.Subtask;
 import javakanban.model.Task;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
@@ -20,7 +18,7 @@ public interface TaskManager {
 
     Epic getEpicById(int id);
 
-    ArrayList<Subtask> getSubtasksOfEpicById(int id);
+    List<Subtask> getSubtasksOfEpicById(int id);
 
     Subtask addSubtask(Subtask subtask);
 
@@ -28,11 +26,11 @@ public interface TaskManager {
 
     Subtask getSubtaskById(int id);
 
-    ArrayList<Task> getTasks();
+    List<Task> getTasks();
 
-    ArrayList<Epic> getEpics();
+    List<Epic> getEpics();
 
-    ArrayList<Subtask> getSubtasks();
+    List<Subtask> getSubtasks();
 
     List<Task> getHistory();
 
