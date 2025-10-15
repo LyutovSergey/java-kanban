@@ -2,7 +2,7 @@ package javakanban.model;
 import java.util.ArrayList;
 
 public class Epic extends Task {
-    final private ArrayList<Integer> subtasksId;
+    private final ArrayList<Integer> subtasksId;
 
     public Epic(String name, String description) {
         super(name, description, Status.NEW);
