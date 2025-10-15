@@ -37,7 +37,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(int id) {
-        if ( !tasks.containsKey(id) ) return null;
+        if (!tasks.containsKey(id)) return null;
         historyOfTaskManager.add(tasks.get(id));
         return new Task(tasks.get(id));
     }
@@ -63,7 +63,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic getEpicById(int id) {
-        if(!epics.containsKey(id)) {
+        if (!epics.containsKey(id)) {
             return null;
         }
         historyOfTaskManager.add(epics.get(id));
@@ -167,7 +167,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected void calculateStatusEpicById(int id) {
         int countStatusNEW = 0;
-        int countStatusIN_PROGRESS = 0;
+        int countStatusINPROGRESS = 0;
         int countStatusDONE = 0;
         Epic epic = epics.get(id);
         for (int findId : epic.getSubtasksId()) {
@@ -176,15 +176,15 @@ public class InMemoryTaskManager implements TaskManager {
                     countStatusNEW++;
                     break;
                 case Status.IN_PROGRESS:
-                    countStatusIN_PROGRESS++;
+                    countStatusINPROGRESS++;
                     break;
                 case Status.DONE:
                     countStatusDONE++;
             }
         }
-        if (countStatusIN_PROGRESS == 0 && countStatusDONE == 0) {
+        if (countStatusINPROGRESS == 0 && countStatusDONE == 0) {
             epic.setStatus(Status.NEW);
-        } else if (countStatusNEW == 0 && countStatusIN_PROGRESS == 0 && countStatusDONE > 0) {
+        } else if (countStatusNEW == 0 && countStatusINPROGRESS == 0 && countStatusDONE > 0) {
             epic.setStatus(Status.DONE);
         } else {
             epic.setStatus(Status.IN_PROGRESS);
