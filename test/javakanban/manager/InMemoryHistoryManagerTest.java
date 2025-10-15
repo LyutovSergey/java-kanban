@@ -26,20 +26,20 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void addTaskAndGetHistory() {
+    void testPublicMethodsOfHistoryManager() {
         historyManager.add(task);
        assertEquals(1, historyManager.getHistory().size(), "Задача не добавилась.");
         historyManager.add(subtask);
         assertEquals(2, historyManager.getHistory().size(), "Подзадача не добавилась.");
         historyManager.add(epic);
         assertEquals(3, historyManager.getHistory().size(), "Эпик не добавился.");
-
-      //  assertEquals(epic.getName(), historyManager.getHistory().getFirst().getName(), "Сдвиг истории  не сработал");
-      //  assertEquals(task.getName(), historyManager.getHistory().getLast().getName(), "Последняя запись  некорректна.");
-      //  assertEquals(task.getName(), historyManager.getHistory().get(InMemoryHistoryManager.MAX_SIZE_OF_HISTORY - 1).getName(), "Последняя запись  некорректна.");
-       // assertEquals(10, historyManager.getHistory().size(), "Количество записей в истории некорректно.");
+        historyManager.add(task);
+        assertEquals(3, historyManager.getHistory().size(), "Дубль задачи не удалился из истории.");
+        historyManager.remove(1);
+        historyManager.remove(3);
+        assertEquals(1, historyManager.getHistory().size(), "Задачи не удалились из истории.");
+        assertEquals(epic, historyManager.getHistory().getLast(),
+                "История задач не соответствует ожидаемому значению.");
     }
-
-
 
 }

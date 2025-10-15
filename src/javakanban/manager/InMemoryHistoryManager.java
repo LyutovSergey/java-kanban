@@ -6,9 +6,21 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    protected Node<Task> first;
-    protected Node<Task> last;
-    protected Map<Integer, Node<Task>> viewingHistory = new HashMap<>();
+    private static class Node <T>{
+        private Node<T> next;
+        private Node<T> previous;
+        private final T task;
+
+         Node(T task) {
+            this.task=task;
+            next=null;
+            previous=null;
+        }
+    }
+
+    private Node<Task> first;
+    private Node<Task> last;
+    private final Map<Integer, Node<Task>> viewingHistory = new HashMap<>();
 
 
     @Override
@@ -64,10 +76,4 @@ public class InMemoryHistoryManager implements HistoryManager {
         return tasksList;
     }
 
-    private void linkLast(Task task) {
-    }
-
-    private void removeNode(Node<Task> node) {
-
-    }
 }
