@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private static class Node <T>{
+    private static class Node<T> {
         private Node<T> next;
         private Node<T> previous;
         private final T task;
 
          Node(T task) {
-            this.task=task;
-            next=null;
-            previous=null;
+            this.task = task;
+            next = null;
+            previous = null;
         }
     }
 
@@ -36,7 +36,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             remove(task.getId());
         }
             newNode.previous = this.last;
-            newNode.previous.next=newNode;
+            newNode.previous.next = newNode;
             this.last = newNode;
             viewingHistory.put(task.getId(), newNode);
         }
@@ -58,8 +58,8 @@ public class InMemoryHistoryManager implements HistoryManager {
                 this.last.next = null;
             }
         } else {
-            node.previous.next=node.next;
-            node.next.previous=node.previous;
+            node.previous.next = node.next;
+            node.next.previous = node.previous;
         }
         viewingHistory.remove(id);
     }
