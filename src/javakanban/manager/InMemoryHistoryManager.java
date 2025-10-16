@@ -26,14 +26,14 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void add(Task task) {
         Node<Task> newNode = new Node<>(task);
+        if (this.viewingHistory.containsKey(task.getId())) {
+            remove(task.getId());
+        }
         if (this.viewingHistory.isEmpty()) {
             this.first = newNode;
             this.last = newNode;
             viewingHistory.put(task.getId(), newNode);
             return;
-        }
-        if (this.viewingHistory.containsKey(task.getId())) {
-            remove(task.getId());
         }
             newNode.previous = this.last;
             newNode.previous.next = newNode;
@@ -49,14 +49,14 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         if (node == this.first) {
             this.first = node.next;
-            if (this.last.next != null) {
+            if (this.first != null) {
                 this.first.previous = null;
+            } else {
+                this.last = null;
             }
         } else if (node == this.last) {
             this.last = node.previous;
-            if (this.last != null) {
-                this.last.next = null;
-            }
+            this.last.next = null;
         } else {
             node.previous.next = node.next;
             node.next.previous = node.previous;

@@ -28,7 +28,7 @@ class InMemoryHistoryManagerTest {
     @Test
     void testPublicMethodsOfHistoryManager() {
         historyManager.add(task);
-       assertEquals(1, historyManager.getHistory().size(), "Задача не добавилась.");
+        assertEquals(1, historyManager.getHistory().size(), "Задача не добавилась.");
         historyManager.add(subtask);
         assertEquals(2, historyManager.getHistory().size(), "Подзадача не добавилась.");
         historyManager.add(epic);

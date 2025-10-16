@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class InMemoryTaskManagerTest {
     TaskManager taskManager;
-    Task task1 ,task2;
+    Task task1, task2;
     Task savedTask;
     Epic epic1, epic2;
     Epic savedEpic;
