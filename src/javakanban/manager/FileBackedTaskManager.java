@@ -2,7 +2,6 @@ package javakanban.manager;
 
 import javakanban.exceptions.*;
 import javakanban.model.*;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
