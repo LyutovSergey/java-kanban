@@ -65,7 +65,7 @@ class FileBackedTaskManagerTest {
 
     @Test
     void fromTaskManagerToCSV() {
-        List<String> LinesCSV = taskManager1.FromTaskManagerToCSV();
+        List<String> LinesCSV = taskManager1.fromTaskManagerToCSV();
         assertEquals(LinesCSV, LinesCSVStandart, "Метод taskManagerToCSV вернул некорректные данные.");
     }
 
