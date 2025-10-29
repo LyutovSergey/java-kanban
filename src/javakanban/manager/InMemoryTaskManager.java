@@ -34,8 +34,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void updateId(Task task) {
-        if (currentId<task.getId()) {
-            currentId=task.getId();
+        if (currentId < task.getId()) {
+            currentId = task.getId();
         }
     }
 
