@@ -117,7 +117,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     protected void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(dataFileName, StandardCharsets.UTF_8))) {
-            for (String linesCSV : TaskManagerToCSV()) {
+            for (String linesCSV : FromTaskManagerToCSV()) {
                 writer.write(linesCSV + "\n");
             }
         } catch (IOException e) {
@@ -125,7 +125,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    protected List<String> TaskManagerToCSV() { // Формат записи: "id,TypeTask,name,Status,description,epicId"
+    protected List<String> FromTaskManagerToCSV() { // Формат записи: "id,TypeTask,name,Status,description,epicId"
         List<String> linesCSV = new ArrayList<>();
         linesCSV.add("id,type,name,status,description,epic");
         String lineCSV;
@@ -167,13 +167,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             Path path = Paths.get(dataFileName);
             List<String> allLines = Files.readAllLines(path, StandardCharsets.UTF_8);
-            CSVToTaskManager(allLines);
+            fromCSVToTaskManager(allLines);
         } catch (Exception e) {
             throw new ManagerFileLoadException("Произошла ошибка во время загрузки данных из файла: " + dataFileName, e);
         }
     }
 
-    protected void CSVToTaskManager(List<String> lines) { // Формат записи: "id,TypeTask,name,Status,description,epicId"
+    protected void fromCSVToTaskManager(List<String> lines) { // Формат записи: "id,TypeTask,name,Status,description,epicId"
         Map<String, Integer> idInFileToNewIdOfEpic = new HashMap<>(); // При загрузке Id эпика может измениться
 
         for (String line : lines) {
@@ -185,8 +185,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     break;
                 case "EPIC":
                     Epic epic = new Epic(dataInLine[2], dataInLine[4], Status.valueOf(dataInLine[3]));
-                    int NewIdEpic = super.addEpic(epic).getId();
-                    idInFileToNewIdOfEpic.put(dataInLine[0], NewIdEpic);
+                    int newIdEpic = super.addEpic(epic).getId();
+                    idInFileToNewIdOfEpic.put(dataInLine[0], newIdEpic);
                     break;
                 case "SUBTASK":
                     Subtask subtask = new Subtask(dataInLine[2],

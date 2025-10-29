@@ -64,14 +64,14 @@ class FileBackedTaskManagerTest {
     }
 
     @Test
-    void taskManagerToCSV() {
-        List<String> LinesCSV = taskManager1.TaskManagerToCSV();
+    void fromTaskManagerToCSV() {
+        List<String> LinesCSV = taskManager1.FromTaskManagerToCSV();
         assertEquals(LinesCSV, LinesCSVStandart, "Метод taskManagerToCSV вернул некорректные данные.");
     }
 
     @Test
-    void CSVToTaskManager() {
-        taskManager2.CSVToTaskManager(LinesCSVStandart);
+    void fromCSVToTaskManager() {
+        taskManager2.fromCSVToTaskManager(LinesCSVStandart);
         assertEquals(taskManager1.getTasks(), taskManager2.getTasks(),
                 "Метод CSVToTaskManager загрузил некорректные данные.");
         assertEquals(taskManager1.getEpics(), taskManager2.getEpics(),
