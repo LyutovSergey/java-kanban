@@ -19,14 +19,13 @@ class FileBackedTaskManagerTest {
     Epic epic1, epic2;
     Subtask subtask1, subtask2, subtask3;
     List<String> LinesCSVStandart = Arrays.asList("id,type,name,status,description,epic",
-            "1,TASK,Задача 1 отдельная,NEW,Описание задачи 1,",
-            "2,TASK,Задача 2 отдельная,NEW,Описание задачи 2,",
-            "3,EPIC,Эпик 1 c тремя подзадачами,IN_PROGRESS,Описание Эпика 1,",
-            "4,EPIC,Эпик 2 без подзадач ,NEW,Описание Эпика 2,",
-            "5,SUBTASK,Подзадача 1 (Эпика 1),NEW,Описание 1,3",
-            "6,SUBTASK,Подзадача 2 (Эпика 1),NEW,Описание 2,3",
-            "7,SUBTASK,Подзадача 3 (Эпика 1),DONE,Описание 3,3");
-    ;
+            "2,TASK,Задача 1 отдельная,NEW,Описание задачи 1,",
+            "3,TASK,Задача 2 отдельная,NEW,Описание задачи 2,",
+            "5,EPIC,Эпик 1 c тремя подзадачами,IN_PROGRESS,Описание Эпика 1,",
+            "6,EPIC,Эпик 2 без подзадач ,NEW,Описание Эпика 2,",
+            "8,SUBTASK,Подзадача 1 (Эпика 1),NEW,Описание 1,5",
+            "9,SUBTASK,Подзадача 2 (Эпика 1),NEW,Описание 2,5",
+            "10,SUBTASK,Подзадача 3 (Эпика 1),DONE,Описание 3,5");
 
     @BeforeEach
     void genDataBeforeTest() {
@@ -36,16 +35,26 @@ class FileBackedTaskManagerTest {
         task1 = new Task("Задача 1 отдельная", "Описание задачи 1", Status.NEW);
         task2 = new Task("Задача 2 отдельная", "Описание задачи 2", Status.NEW);
         taskManager1.addTask(task1);
+        // Удаляем первую задачу для смещения счетчика id
+        // и дальнейшей проверки неизменности id при сохранении и восстановлении задач
+        taskManager1.delTaskById(task1.getId());
+        taskManager1.addTask(task1);
         taskManager1.addTask(task2);
 
         epic1 = new Epic("Эпик 1 c тремя подзадачами", "Описание Эпика 1");
         epic2 = new Epic("Эпик 2 без подзадач ", "Описание Эпика 2");
+        taskManager1.addEpic(epic1);
+        // Удаляем Эпик 1 для смещения счетчика id и проверки дальнейшей сохранности id
+        taskManager1.delEpicById(epic1.getId());
         taskManager1.addEpic(epic1);
         taskManager1.addEpic(epic2);
 
         subtask1 = new Subtask("Подзадача 1 (Эпика 1)", "Описание 1", Status.NEW, epic1.getId());
         subtask2 = new Subtask("Подзадача 2 (Эпика 1)", "Описание 2", Status.NEW, epic1.getId());
         subtask3 = new Subtask("Подзадача 3 (Эпика 1)", "Описание 3", Status.DONE, epic1.getId());
+        taskManager1.addSubtask(subtask1);
+        // Удаляем Подзадачу 1 для смещения счетчика id и проверки дальнейшей сохранности id
+        taskManager1.delSubtaskById(subtask1.getId());
         taskManager1.addSubtask(subtask1);
         taskManager1.addSubtask(subtask2);
         taskManager1.addSubtask(subtask3);
