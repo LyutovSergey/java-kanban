@@ -1,8 +1,11 @@
 package javakanban.model;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class Epic extends Task {
     private final ArrayList<Integer> subtasksId;
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description, Status.NEW);
@@ -20,7 +23,7 @@ public class Epic extends Task {
     }
 
     public Epic(Epic epic) {
-        super(epic.id, epic.name, epic.description, epic.status);
+        super(epic.id, epic.name, epic.description, epic.status, epic.startTime, epic.duration);
         this.subtasksId = new ArrayList<>(epic.subtasksId);
     }
 
@@ -41,13 +44,29 @@ public class Epic extends Task {
     }
 
     @Override
+    public Optional<LocalDateTime> getEndTime() {
+        if (endTime != null) {
+            return Optional.of(endTime);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public String toString() {
-        return "\nEpic{" +
+        return "Epic{" +
                 "id=" + getId() +
                 ", name='" + getName() + '\'' +
                 ", description='" + getDescription() + '\'' +
                 ", status='" + getStatus() + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", duration=" + (duration != null ? duration.toMinutes() + "мин." : "null") +
                 ", subtasksId=" + subtasksId +
                 '}';
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 }
