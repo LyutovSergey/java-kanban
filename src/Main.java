@@ -34,6 +34,7 @@ public class Main {
         taskManager1.addTask(task2);
         taskManager1.addTask(task2);
 
+
         task1 = new Task("Задача 5 отдельная", "Описание задачи 5", Status.NEW,
                 LocalDateTime.parse("2025-12-10 01:00", formatterForCSV), Duration.ofMinutes(15));
         task2 = new Task("Задача 6 отдельная", "Описание задачи 6", Status.NEW,

@@ -47,5 +47,4 @@ public interface TaskManager {
     void delEpicById(int id);
 
     List<Task> getPrioritizedTasks();
-
 }
