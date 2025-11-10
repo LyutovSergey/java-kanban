@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import javakanban.exceptions.InMemoryTaskManagerException;
-import javakanban.exceptions.ManagerFileSaveException;
 import javakanban.model.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -14,7 +13,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager historyOfTaskManager = Managers.getDefaultHistory();
     private final TreeSet<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(
-            task ->task.getStartTime().get()
+            task -> task.getStartTime().get()
     ));
     private int currentId = 0;
 
@@ -260,7 +259,7 @@ public class InMemoryTaskManager implements TaskManager {
 
             epics.get(id).getSubtasksId().stream()
                     .peek(historyOfTaskManager::remove)
-                    .peek(subtaskId->delFromPrioritizedTasks(subtasks.get(subtaskId)))
+                    .peek(subtaskId -> delFromPrioritizedTasks(subtasks.get(subtaskId)))
                     .forEach(subtasks::remove);
             historyOfTaskManager.remove(id);
             epics.remove(id);
@@ -293,27 +292,28 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getStartTime().isEmpty() || task.getEndTime().isEmpty()) {
             return;
         }
-        if ( isOverlapOfTimeTasks(task)){
-            throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
+        if ( isOverlapOfTimeTasks(task)) {
+           throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
         }
         prioritizedTasks.add(task);
     }
     private void delFromPrioritizedTasks (Task task) {
-        if (task.getStartTime().isPresent()){
+        if (task.getStartTime().isPresent()) {
             prioritizedTasks.remove(task);
         }
     }
-    protected void calculateTimeEpicById(int id){
+    protected void calculateTimeEpicById(int id) {
+
         Epic epic = epics.get(id);
         Optional<LocalDateTime> startTime = epic.getSubtasksId().stream()
-                .map(idSubtask->subtasks.get(idSubtask).getStartTime())
+                .map(idSubtask -> subtasks.get(idSubtask).getStartTime())
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .min(Comparator.naturalOrder());
         startTime.ifPresent(epic::setStartTime);
 
         Optional<LocalDateTime> endTime = epic.getSubtasksId().stream()
-                .map(idSubtask->subtasks.get(idSubtask).getEndTime())
+                .map(idSubtask -> subtasks.get(idSubtask).getEndTime())
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .max(Comparator.naturalOrder());
