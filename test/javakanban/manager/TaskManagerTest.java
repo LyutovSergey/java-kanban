@@ -1,5 +1,6 @@
 package javakanban.manager;
 
+import javakanban.exceptions.InMemoryTaskManagerException;
 import javakanban.model.Epic;
 import javakanban.model.Status;
 import javakanban.model.Subtask;
@@ -7,6 +8,9 @@ import javakanban.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
     Epic savedEpicTM;
     Subtask subtaskTM1, subtaskTM2, subtask3TM;
     Subtask savedSubtaskTM;
+    DateTimeFormatter formatterForDataTaskAndCSV = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     abstract T getTaskManager();
 
@@ -28,7 +33,8 @@ import static org.junit.jupiter.api.Assertions.*;
         taskManager = getTaskManager();
 
         taskTM1 = new Task("Задача 1", "Описание задачи 1", Status.NEW);
-        taskTM2 = new Task("Задача 2", "Описание задачи 2", Status.NEW);
+        taskTM2 = new Task("Задача 2", "Описание задачи 2", Status.NEW,
+                LocalDateTime.parse("2025-11-10 01:00", formatterForDataTaskAndCSV), Duration.ofMinutes(60));
         taskManager.addTask(taskTM1);
         taskManager.addTask(taskTM2);
 
@@ -37,8 +43,10 @@ import static org.junit.jupiter.api.Assertions.*;
         taskManager.addEpic(epicTM1);
         taskManager.addEpic(epicTM2);
 
-        subtaskTM1 = new Subtask("Подзадача 1 (Эпика 1)", "Описание 1", Status.NEW, epicTM1.getId());
-        subtaskTM2 = new Subtask("Подзадача 2 (Эпика 1)", "Описание 2", Status.NEW, epicTM1.getId());
+        subtaskTM1 = new Subtask("Подзадача 1 (Эпика 1)", "Описание 1", Status.NEW, epicTM1.getId(),
+                LocalDateTime.parse("2025-11-10 02:00", formatterForDataTaskAndCSV), Duration.ofMinutes(30));
+        subtaskTM2 = new Subtask("Подзадача 2 (Эпика 1)", "Описание 2", Status.NEW, epicTM1.getId(),
+            LocalDateTime.parse("2025-11-09 01:10", formatterForDataTaskAndCSV), Duration.ofMinutes(10));
         subtask3TM = new Subtask("Подзадача 3 (Эпика 2)", "Описание 3", Status.NEW, epicTM2.getId());
         taskManager.addSubtask(subtaskTM1);
         taskManager.addSubtask(subtaskTM2);
@@ -130,6 +138,14 @@ import static org.junit.jupiter.api.Assertions.*;
         assertEquals(subtaskTM1, savedSubtaskTM, "Подзадача 1 не совпадает с сохранённой.");
         // Проверка попытки добавить Эпика как подзадачи в самого себя - невозможно - не даёт компилировать
         //taskManager.addSubtask(epic1);
+
+        // Проверка на возможность присвоить подзадаче неверный epicId
+        Subtask subtaskTM4 = new Subtask("Подзадача 4 для несуществующего Эпика ",
+                "Описание 4", Status.NEW, 666);
+        assertNull(taskManager.addSubtask(subtaskTM4), "Удалось создать подзадачу с неверным epicId");
+        assertEquals(3, taskManager.getSubtasks().size(),
+                "Удалось создать подзадачу с неверным epicId");
+
     }
 
     @Test
@@ -150,6 +166,7 @@ import static org.junit.jupiter.api.Assertions.*;
         savedSubtaskTM = taskManager.getSubtaskById(subtask3TM.getId());
         savedSubtaskTM.setId(subtask3TM.getEpicId());
         assertNull(taskManager.updateSubtask(savedSubtaskTM), "Удалось подменить Id.");
+
     }
 
     @Test
@@ -200,15 +217,6 @@ import static org.junit.jupiter.api.Assertions.*;
     }
 
     @Test
-    void calculateStatusEpicById() {
-        savedSubtaskTM = taskManager.getSubtaskById(subtask3TM.getId());
-        savedSubtaskTM.setStatus(Status.DONE);
-        taskManager.updateSubtask(savedSubtaskTM);
-        assertEquals(Status.DONE, taskManager.getEpicById(subtask3TM.getEpicId()).getStatus(),
-                "Эпик 2 не изменил свой статус при обновлении подзадачи.");
-    }
-
-    @Test
     void delTaskById() {
         taskManager.delTaskById(taskTM1.getId());
         assertNull(taskManager.getTaskById(taskTM1.getId()), "Задача 1 не удалилась.");
@@ -228,7 +236,125 @@ import static org.junit.jupiter.api.Assertions.*;
         assertNull(taskManager.getEpicById(epicTM1.getId()), "Эпик 1 не удалился.");
     }
 
-    @Test
-    void getHistory() {
-    }
+     @Test
+     void calculateStatusEpicById() {
+
+        // Проверка статуса Эпика с подзадачами в статусе NEW
+         assertEquals(Status.NEW, taskManager.getEpicById(epicTM1.getId()).getStatus(),
+                 "Проверка статуса Эпика с подзадачами в статусе NEW не пройдена");
+
+         // Проверка статуса Эпика с подзадачами в статусе NEW и DONE
+         savedSubtaskTM = taskManager.getSubtaskById(subtaskTM1.getId());
+         savedSubtaskTM.setStatus(Status.DONE); // Меняем статус у единственной подзадачи Эпика 2
+         taskManager.updateSubtask(savedSubtaskTM);
+         assertEquals(Status.IN_PROGRESS, taskManager.getEpicById(epicTM1.getId()).getStatus(),
+                 "Проверка статуса Эпика с подзадачами в статусе NEW и DONE не пройдена");
+
+         // Проверка статуса Эпика с подзадачами в статусе IN_PROGRESS
+         savedSubtaskTM = taskManager.getSubtaskById(subtaskTM1.getId());
+         savedSubtaskTM.setStatus(Status.IN_PROGRESS); // Меняем статус у единственной подзадачи Эпика 2
+         taskManager.updateSubtask(savedSubtaskTM);
+         savedSubtaskTM = taskManager.getSubtaskById(subtaskTM2.getId());
+         savedSubtaskTM.setStatus(Status.IN_PROGRESS); // Меняем статус у единственной подзадачи Эпика 2
+         taskManager.updateSubtask(savedSubtaskTM);
+         assertEquals(Status.IN_PROGRESS, taskManager.getEpicById(epicTM1.getId()).getStatus(),
+                 "Проверка статуса Эпика с подзадачами в статусе IN_PROGRESS не пройдена");
+
+         savedSubtaskTM = taskManager.getSubtaskById(subtask3TM.getId());
+         savedSubtaskTM.setStatus(Status.DONE); // Меняем статус у единственной подзадачи Эпика 2
+         taskManager.updateSubtask(savedSubtaskTM);
+         assertEquals(Status.DONE, taskManager.getEpicById(subtask3TM.getEpicId()).getStatus(),
+                 "Проверка статуса Эпика с единственной подзадачей  в статусе DONE не пройдена");
+     }
+
+     @Test
+     void getPrioritizedTasks() {
+        String correctResult1 = "[Subtask{epicId=3, id=6, name='Подзадача 2 (Эпика 1)', description='Описание 2', " +
+                "status=NEW, startTime=2025-11-09T01:10, duration=10мин.}, " +
+                "Task{id=2, name='Задача 2', description='Описание задачи 2', " +
+                "status=NEW, startTime=2025-11-10T01:00, duration=60 мин.}, " +
+                "Subtask{epicId=3, id=5, name='Подзадача 1 (Эпика 1)', description='Описание 1', " +
+                "status=NEW, startTime=2025-11-10T02:00, duration=30мин.}]";
+
+         String correctResult2 = "[Subtask{epicId=3, id=5, name='Подзадача 1 (Эпика 1)', description='Описание 1', " +
+                 "status=NEW, startTime=2025-11-10T02:00, duration=30мин.}]";
+
+         assertEquals(correctResult1, taskManager.getPrioritizedTasks().toString(),
+                 "Список приоритетных задач некорректен");
+
+         //Проверка списка приоритетных задач после удаления
+         taskManager.delTaskById(2);
+         taskManager.delSubtaskById(6);
+         assertEquals(correctResult2, taskManager.getPrioritizedTasks().toString(),
+                 "Список приоритетных задач некорректен");
+     }
+
+     @Test
+     void calculateTimeEpicById() {
+         assertEquals("2025-11-09T01:10", taskManager.getEpicById(epicTM1.getId()).getStartTime().get().toString(),
+                 "Рассчитанное время начало Эпика1 неверно");
+         assertEquals(40, taskManager.getEpicById(epicTM1.getId()).getDuration().get().toMinutes(),
+                 "Рассчитанная продолжительность Эпика1 неверно");
+         assertEquals("2025-11-10T02:30", taskManager.getEpicById(epicTM1.getId()).getEndTime().get().toString(),
+                 "Рассчитанное время окончание Эпика1 неверно");
+
+         assertFalse(taskManager.getEpicById(epicTM2.getId()).getStartTime().isPresent(),
+                 "Рассчитанное время начало Эпика2 неверно");
+         assertFalse(taskManager.getEpicById(epicTM2.getId()).getDuration().isPresent(),
+                 "Рассчитанная продолжительность Эпика2 неверно");
+         assertFalse(taskManager.getEpicById(epicTM2.getId()).getEndTime().isPresent(),
+                 "Рассчитанное время окончание Эпика12 неверно");
+     }
+
+     @Test void  isOverlapOfTimeTasks(){
+         /*
+         Текущий список задач с приоритетами:
+         [
+            Subtask{epicId=3, id=6, name='Подзадача 2 (Эпика 1), startTime=2025-11-09T01:10, duration=10мин.},
+            Task{id=2, name='Задача 2', startTime=2025-11-10T01:00, duration=60 мин.},
+            Subtask{epicId=3, id=5, name='Подзадача 1 (Эпика 1)', startTime=2025-11-10T02:00, duration=30мин.}
+         ]
+          */
+
+        //Проверка добавить задачу полностью совпадающей по времени выполнения с другой
+         Task task = new Task("Задача 1 отдельная", "Описание задачи 1", Status.NEW,
+                 LocalDateTime.parse("2025-11-10 01:00", formatterForDataTaskAndCSV), Duration.ofMinutes(60));
+             assertThrows(InMemoryTaskManagerException.class, () -> {
+                 taskManager.addTask(task);
+             }, "Удалось добавить задачу полностью совпадающей по времени выполнения с другой");
+
+         //Попытка добавить задачу пересекающуюся по времени выполнения справа с другой
+          Task task2 = new Task("Задача 1 отдельная", "Описание задачи 1", Status.NEW,
+                 LocalDateTime.parse("2025-11-10 01:50", formatterForDataTaskAndCSV), Duration.ofMinutes(60));
+         assertThrows(InMemoryTaskManagerException.class, () -> {
+             taskManager.addTask(task2);
+         }, "Удалось добавить задачу пересекающуюся по времени выполнения справа с другой");
+
+         //Попытка добавить задачу пересекающуюся по времени выполнения слева с другой
+         Task task3 = new Task("Задача 1 отдельная", "Описание задачи 1", Status.NEW,
+                 LocalDateTime.parse("2025-11-10 00:01", formatterForDataTaskAndCSV), Duration.ofMinutes(60));
+         assertThrows(InMemoryTaskManagerException.class, () -> {
+             taskManager.addTask(task3);
+         }, "Удалось добавить задачу пересекающуюся по времени выполнения слева с другой");
+     }
+
+/*
+     @Test
+     void shouldCalculateEpicTime() {
+         LocalDateTime baseTime = LocalDateTime.of(2024, 1, 1, 10, 0);
+         Epic epic = taskManager.createEpic(new Epic("Epic", "Description"));
+
+         Subtask subtask1 = taskManager.createSubtask(
+                 new Subtask("Sub1", "Desc", Status.NEW, epic.getId(),
+                         Duration.ofHours(1), baseTime));
+
+         Subtask subtask2 = taskManager.createSubtask(
+                 new Subtask("Sub2", "Desc", Status.NEW, epic.getId(),
+                         Duration.ofHours(2), baseTime.plusHours(1)));
+
+         assertEquals(baseTime, epic.getStartTime());
+         assertEquals(baseTime.plusHours(3), epic.getEndTime());
+     }
+*/
+
 }

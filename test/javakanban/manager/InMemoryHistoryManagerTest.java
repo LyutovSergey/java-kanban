@@ -37,9 +37,13 @@ class InMemoryHistoryManagerTest {
         assertEquals(3, historyManager.getHistory().size(), "Дубль задачи не удалился из истории.");
         historyManager.remove(1);
         historyManager.remove(3);
-        assertEquals(1, historyManager.getHistory().size(), "Задачи не удалились из истории.");
+        assertEquals(1, historyManager.getHistory().size(),
+                "Первая и последняя задачи не удалились из истории.");
         assertEquals(epic, historyManager.getHistory().getLast(),
                 "История задач не соответствует ожидаемому значению.");
+        historyManager.remove(2);
+        assertEquals(0, historyManager.getHistory().size(),
+                "Последняя задача не удалилась из истории.");
     }
 
 }

@@ -131,4 +131,12 @@ public class Task {
             return Optional.empty();
         }
     }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
 }

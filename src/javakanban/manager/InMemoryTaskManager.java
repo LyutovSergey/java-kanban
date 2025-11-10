@@ -1,4 +1,6 @@
 package javakanban.manager;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -128,6 +130,7 @@ public class InMemoryTaskManager implements TaskManager {
         Subtask newSubtask = new Subtask(subtask);
         subtasks.put(newSubtask.getId(), newSubtask);
         calculateStatusEpicById(subtask.getEpicId());
+        calculateTimeEpicById(subtask.getEpicId());
         addToPrioritizedTasks(newSubtask);
         return subtask;
     }
@@ -141,6 +144,7 @@ public class InMemoryTaskManager implements TaskManager {
         Subtask newSubtask = new Subtask(subtask);
         subtasks.replace(newSubtask.getId(), newSubtask);
         calculateStatusEpicById(newSubtask.getEpicId());
+        calculateTimeEpicById(newSubtask.getEpicId());
         delFromPrioritizedTasks(subtasks.get(subtask.getId()));
         addToPrioritizedTasks(newSubtask);
         return subtask;
@@ -192,9 +196,13 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.keySet().forEach(historyOfTaskManager::remove);
         subtasks.values().forEach(this::delFromPrioritizedTasks);
         subtasks.clear();
-        epics.values().stream()
-                .peek(Epic::removeAllSubtaskId)
-                .forEach(epic->calculateStatusEpicById(epic.getId()));
+        epics.values().forEach(epic -> {
+            epic.removeAllSubtaskId();
+            calculateStatusEpicById(epic.getId());
+            calculateTimeEpicById(epic.getId());
+        });
+
+
     }
 
     protected void calculateStatusEpicById(int id) {
@@ -239,6 +247,8 @@ public class InMemoryTaskManager implements TaskManager {
             subtasks.remove(id);
             epics.get(epicId).removeSubtaskId(id);
             calculateStatusEpicById(epicId);
+            calculateTimeEpicById(epicId);
+
         }
     }
 
@@ -289,6 +299,32 @@ public class InMemoryTaskManager implements TaskManager {
     private void delFromPrioritizedTasks (Task task) {
         if (task.getStartTime().isPresent()){
             prioritizedTasks.remove(task);
+        }
+    }
+    protected void calculateTimeEpicById(int id){
+        Epic epic = epics.get(id);
+        Optional<LocalDateTime> startTime = epic.getSubtasksId().stream()
+                .map(idSubtask->subtasks.get(idSubtask).getStartTime())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .min(Comparator.naturalOrder());
+        startTime.ifPresent(epic::setStartTime);
+
+        Optional<LocalDateTime> endTime = epic.getSubtasksId().stream()
+                .map(idSubtask->subtasks.get(idSubtask).getEndTime())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .max(Comparator.naturalOrder());
+        endTime.ifPresent(epic::setEndTime);
+
+        Duration duration = epic.getSubtasksId().stream()
+                .map(idSubtask -> subtasks.get(idSubtask).getDuration())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .reduce(Duration.ZERO, Duration::plus);
+
+        if (!duration.isZero()) {
+            epic.setDuration(duration);
         }
     }
 }
