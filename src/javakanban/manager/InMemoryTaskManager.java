@@ -36,8 +36,10 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.put(newSubtask.getId(), newSubtask);
         if (epics.containsKey(newSubtask.getEpicId())) {
             epics.get(newSubtask.getEpicId()).addSubtaskId(newSubtask.getId());
+            calculateTimeEpicById(newSubtask.getEpicId());
         }
         updateId(subtask);
+
         addToPrioritizedTasks(newSubtask);
     }
 

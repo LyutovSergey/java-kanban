@@ -59,40 +59,6 @@ public class Main {
         taskManager1.delSubtaskById(subtask2.getId());
 
 
-
-
-        /*
-        // Удаляем первую задачу для смещения счетчика id
-        // и дальнейшей проверки неизменности id при сохранении и восстановлении задач
-        taskManager1.delTaskById(task1.getId());
-        taskManager1.addTask(task1);
-        taskManager1.addTask(task2);
-
-        epic1 = new Epic("Эпик 1 c тремя подзадачами", "Описание Эпика 1");
-        epic2 = new Epic("Эпик 2 без подзадач ", "Описание Эпика 2");
-        taskManager1.addEpic(epic1);
-        // Удаляем Эпик 1 для смещения счетчика id и проверки дальнейшей сохранности id
-        taskManager1.delEpicById(epic1.getId());
-        taskManager1.addEpic(epic1);
-        taskManager1.addEpic(epic2);
-
-        subtask1 = new Subtask("Подзадача 1 (Эпика 1)", "Описание 1", Status.NEW, epic1.getId());
-        subtask2 = new Subtask("Подзадача 2 (Эпика 1)", "Описание 2", Status.NEW, epic1.getId());
-        subtask3 = new Subtask("Подзадача 3 (Эпика 1)", "Описание 3", Status.DONE, epic1.getId());
-        taskManager1.addSubtask(subtask1);
-        // Удаляем Подзадачу 1 для смещения счетчика id и проверки дальнейшей сохранности id
-        taskManager1.delSubtaskById(subtask1.getId());
-        taskManager1.addSubtask(subtask1);
-        taskManager1.addSubtask(subtask2);
-        taskManager1.addSubtask(subtask3);
-
-        TaskManager taskManager2 = Managers.getTaskManager(TypeTaskManager.FILE_BACKED); // Инициализация с загрузкой
-
-        System.out.println("-----------Данные taskManager1-----------------");
-        printAllTasks(taskManager1);
-        System.out.println("\n\n-----------Данные taskManager2-----------------");
-
-         */
         printAllTasks(taskManager1);
     }
 

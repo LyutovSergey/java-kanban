@@ -128,7 +128,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     protected List<String> fromTaskManagerToCSV() {
         List<String> linesCSV = new ArrayList<>(); // Формат записи: "id,TypeTask,name,Status,description,startTime,duration,epicId"
-        linesCSV.add("id,type,name,status,description,epic");
+        linesCSV.add("id,type,name,status,description,epic,startTime,duration");
         String lineCSV; // Формат записи: "id,TypeTask,name,Status,description,epicId,startTime,duration"
 
         for (Task task : getTasks()) {

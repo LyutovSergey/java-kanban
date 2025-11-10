@@ -14,55 +14,40 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     final static String FILE_NAME = "dataTaskManagerTest.csv";
-    FileBackedTaskManager taskManagerFB2, taskManagerFB3;
-    Task taskFB1, taskFB2;
-    Epic epicFB1, epicFB2;
-    Subtask subtaskFB1, subtaskFB2, subtaskFB3;
-    List<String> LinesCSVStandartFB = Arrays.asList("id,type,name,status,description,epic",
-            "2,TASK,Задача 1 отдельная,NEW,Описание задачи 1,,,",
-            "3,TASK,Задача 2 отдельная,NEW,Описание задачи 2,,,",
-            "5,EPIC,Эпик 1 c тремя подзадачами,IN_PROGRESS,Описание Эпика 1,,,",
-            "6,EPIC,Эпик 2 без подзадач ,NEW,Описание Эпика 2,,,",
-            "8,SUBTASK,Подзадача 1 (Эпика 1),NEW,Описание 1,5,,",
-            "9,SUBTASK,Подзадача 2 (Эпика 1),NEW,Описание 2,5,,",
-            "10,SUBTASK,Подзадача 3 (Эпика 1),DONE,Описание 3,5,,");
+    FileBackedTaskManager taskManager2;
+    List<String> LinesCSVStandart = Arrays.asList("id,type,name,status,description,epic,startTime,duration",
+            "2,TASK,Задача 2,NEW,Описание задачи 2,,2025-11-10 01:00,60",
+            "8,TASK,Задача 1,NEW,Описание задачи 1,,,",
+            "3,EPIC,Эпик 1,IN_PROGRESS,Описание Эпика 1,,,",
+            "4,EPIC,Эпик 2,DONE,Описание Эпика 2,,,",
+            "5,SUBTASK,Подзадача 1 (Эпика 1),IN_PROGRESS,Описание 1,3,2025-11-10 02:00,30",
+            "6,SUBTASK,Подзадача 2 (Эпика 1),NEW,Описание 2,3,2025-11-09 01:10,10",
+            "7,SUBTASK,Подзадача 3 (Эпика 2),DONE,Описание 3,4,,");
 
     protected FileBackedTaskManager getTaskManager() {
         return  new FileBackedTaskManager(FILE_NAME,false);
     }
 
-    @BeforeEach
-    void genDataBeforeTestFB() {
-        taskManagerFB2 = getTaskManager();// new FileBackedTaskManager(FILE_NAME,false);
-        taskManagerFB3 = getTaskManager();  // new FileBackedTaskManager(FILE_NAME,false);
-
-        taskFB1 = new Task("Задача 1 отдельная", "Описание задачи 1", Status.NEW);
-        taskFB2 = new Task("Задача 2 отдельная", "Описание задачи 2", Status.NEW);
-        taskManagerFB2.addTask(taskFB1);
+    void updateDataBeforeTestFB() {
+        taskManager2 = new FileBackedTaskManager(FILE_NAME,false);
         // Удаляем первую задачу для смещения счетчика id
         // и дальнейшей проверки неизменности id при сохранении и восстановлении задач
-        taskManagerFB2.delTaskById(taskFB1.getId());
-        taskManagerFB2.addTask(taskFB1);
-        taskManagerFB2.addTask(taskFB2);
+        taskManager.delTaskById(task1.getId());
+        taskManager.addTask(task1);
 
-        epicFB1 = new Epic("Эпик 1 c тремя подзадачами", "Описание Эпика 1");
-        epicFB2 = new Epic("Эпик 2 без подзадач ", "Описание Эпика 2");
-        taskManagerFB2.addEpic(epicFB1);
-        // Удаляем Эпик 1 для смещения счетчика id и проверки дальнейшей сохранности id
-        taskManagerFB2.delEpicById(epicFB1.getId());
-        taskManagerFB2.addEpic(epicFB1);
-        taskManagerFB2.addEpic(epicFB2);
+        // Меняем статус у единственной подзадачи Эпика 2
+        savedSubtask = taskManager.getSubtaskById(subtask3.getId());
+        savedSubtask.setStatus(Status.DONE); // Меняем статус у единственной подзадачи Эпика 2
+        taskManager.updateSubtask(savedSubtask);
 
-        subtaskFB1 = new Subtask("Подзадача 1 (Эпика 1)", "Описание 1", Status.NEW, epicFB1.getId());
-        subtaskFB2 = new Subtask("Подзадача 2 (Эпика 1)", "Описание 2", Status.NEW, epicFB1.getId());
-        subtaskFB3 = new Subtask("Подзадача 3 (Эпика 1)", "Описание 3", Status.DONE, epicFB1.getId());
-        taskManagerFB2.addSubtask(subtaskFB1);
-        // Удаляем Подзадачу 1 для смещения счетчика id и проверки дальнейшей сохранности id
-        taskManagerFB2.delSubtaskById(subtaskFB1.getId());
-        taskManagerFB2.addSubtask(subtaskFB1);
-        taskManagerFB2.addSubtask(subtaskFB2);
-        taskManagerFB2.addSubtask(subtaskFB3);
+        // Меняем статус у подзадачи Эпика1
+        savedSubtask = taskManager.getSubtaskById(subtask1.getId());
+        savedSubtask.setStatus(Status.IN_PROGRESS);
+        taskManager.updateSubtask(savedSubtask);
 
+
+
+        // Очистка или создание файла для данных
         File file = new File(FILE_NAME);
         try {
             if (!file.exists()) {
@@ -78,41 +63,42 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test
     void fromTaskManagerToCSV() {
-        List<String> LinesCSV = taskManagerFB2.fromTaskManagerToCSV();
-      //  taskManagerFB2.save();
-      //  taskManagerFB2.loadFromFile();
-        assertEquals(LinesCSV, LinesCSVStandartFB, "Метод taskManagerToCSV вернул некорректные данные.");
+        updateDataBeforeTestFB();
+        List<String> LinesCSV = taskManager.fromTaskManagerToCSV();
+        assertEquals(LinesCSV, LinesCSVStandart, "Метод taskManagerToCSV вернул некорректные данные.");
     }
 
     @Test
     void fromCSVToTaskManager() {
-        taskManagerFB3.fromCSVToTaskManager(LinesCSVStandartFB);
-        assertEquals(taskManagerFB2.getTasks(), taskManagerFB3.getTasks(),
+        updateDataBeforeTestFB();
+        taskManager2.fromCSVToTaskManager(LinesCSVStandart);
+        assertEquals(taskManager.getTasks().toString(), taskManager2.getTasks().toString(),
                 "Метод CSVToTaskManager загрузил некорректные данные.");
-        assertEquals(taskManagerFB2.getEpics(), taskManagerFB3.getEpics(),
+        assertEquals(taskManager.getEpics().toString(), taskManager2.getEpics().toString(),
                 "Метод CSVToTaskManager загрузил некорректные данные.");
-        assertEquals(taskManagerFB2.getSubtasks(), taskManagerFB3.getSubtasks(),
+        assertEquals(taskManager.getSubtasks().toString(), taskManager2.getSubtasks().toString(),
                 "Метод CSVToTaskManager загрузил некорректные данные.");
     }
 
     @Test
     void SaveAndLoadTaskManager() {
+        updateDataBeforeTestFB();
         // Тест загрузки пустого файла
-        taskManagerFB3.loadFromFile();
-        assertEquals(0, taskManagerFB3.getSubtasks().size(),
+        taskManager2.loadFromFile();
+        assertEquals(0, taskManager2.getSubtasks().size(),
                 "Метод loadFromFile загрузил некорректные данные из пустого файла.");
-        assertEquals(0, taskManagerFB3.getTasks().size(),
+        assertEquals(0, taskManager2.getTasks().size(),
                 "Метод loadFromFile загрузил некорректные данные из пустого файла.");
-        assertEquals(0, taskManagerFB3.getEpics().size(),
+        assertEquals(0, taskManager2.getEpics().size(),
                 "Метод loadFromFile загрузил некорректные данные из пустого файла.");
 
-        taskManagerFB2.save();
-        taskManagerFB3.loadFromFile();
-        assertEquals(taskManagerFB2.getTasks(), taskManagerFB3.getTasks(),
+        taskManager.save();
+        taskManager2.loadFromFile();
+        assertEquals(taskManager.getTasks().toString(), taskManager2.getTasks().toString(),
                 "Загруженные задачи не равны сохранённым.");
-        assertEquals(taskManagerFB2.getEpics(), taskManagerFB3.getEpics(),
+        assertEquals(taskManager.getEpics().toString(), taskManager2.getEpics().toString(),
                 "Загруженные задачи не равны сохранённым.");
-        assertEquals(taskManagerFB2.getSubtasks(), taskManagerFB3.getSubtasks(),
+        assertEquals(taskManager.getSubtasks().toString(), taskManager2.getSubtasks().toString(),
                 "Загруженные задачи не равны сохранённым.");
 
 
