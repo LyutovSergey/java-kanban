@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
     abstract T getTaskManager();
 
     @BeforeEach
-    void genDataBeforeTestTM() {
+    void genDataBeforeTest() {
         taskManager = getTaskManager();
 
         task1 = new Task("Задача 1", "Описание задачи 1", Status.NEW);
@@ -51,6 +51,13 @@ import static org.junit.jupiter.api.Assertions.*;
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
         taskManager.addSubtask(subtask3);
+
+        //Наполнение historyManager = 2 задачи + 1 подзадача + 1 эпик
+        taskManager.getTaskById(task1.getId());
+        taskManager.getTaskById(task2.getId());
+        taskManager.getSubtaskById(subtask3.getId());
+        taskManager.getTaskById(task1.getId());
+        taskManager.getEpicById(epic1.getId());
     }
 
 
@@ -81,6 +88,22 @@ import static org.junit.jupiter.api.Assertions.*;
                 +"по Описанию с сохранённой.");
         assertEquals(Status.IN_PROGRESS, savedTask.getStatus(), "Задача 2 не совпадает по Статусу "
                 + "с сохранённой.");
+
+        /*
+         Тест по обновлению задачи с приоритетом
+         Текущий список задач с приоритетами:
+         [
+            Subtask{epicId=3, id=6, name='Подзадача 2 (Эпика 1), startTime=2025-11-09T01:10, duration=10мин.},
+            Task{id=2, name='Задача 2', startTime=2025-11-10T01:00, duration=60 мин.},
+            Subtask{epicId=3, id=5, name='Подзадача 1 (Эпика 1)', startTime=2025-11-10T02:00, duration=30мин.}
+         ]
+          */
+        task2.setStartTime(LocalDateTime.parse("2025-11-10 00:01", formatterForDataTaskAndCSV));
+        taskManager.updateTask(task2);
+        assertEquals(3, taskManager.getPrioritizedTasks().size(), "Обновление приватизированной задачи " +
+                "сработало некорректно");
+        assertEquals("2025-11-10T00:01", taskManager.getPrioritizedTasks().get(1).getStartTime().get().toString(), "Обновление приватизированной задачи " +
+                "сработало некорректно");
     }
 
     @Test
@@ -167,6 +190,22 @@ import static org.junit.jupiter.api.Assertions.*;
         savedSubtask.setId(subtask3.getEpicId());
         assertNull(taskManager.updateSubtask(savedSubtask), "Удалось подменить Id.");
 
+        /*
+         Тест по обновлению подзадачи с приоритетом
+         Текущий список задач с приоритетами:
+         [
+            Subtask{epicId=3, id=6, name='Подзадача 2 (Эпика 1), startTime=2025-11-09T01:10, duration=10мин.},
+            Task{id=2, name='Задача 2', startTime=2025-11-10T01:00, duration=60 мин.},
+            Subtask{epicId=3, id=5, name='Подзадача 1 (Эпика 1)', startTime=2025-11-10T02:00, duration=30мин.}
+         ]
+          */
+        subtask1.setStartTime(LocalDateTime.parse("2025-11-15 02:01", formatterForDataTaskAndCSV));
+        taskManager.updateSubtask(subtask1);
+        assertEquals(3, taskManager.getPrioritizedTasks().size(), "Обновление приоритетной подзадачи " +
+                "сработало некорректно");
+        assertEquals("2025-11-15T02:01", taskManager.getPrioritizedTasks().get(2).getStartTime().get().toString(),
+                "Обновление приоритетной подзадачи сработало некорректно");
+
     }
 
     @Test
@@ -202,38 +241,62 @@ import static org.junit.jupiter.api.Assertions.*;
     void delTasks() {
         taskManager.delTasks();
         assertEquals(0, taskManager.getTasks().size(), "Задачи не удалились.");
+        assertEquals(2, taskManager.getHistory().size(), "Задачи не удалились из истории.");
+        assertEquals(2, taskManager.getPrioritizedTasks().size(), "Задачи не удалились из приоритета.");
     }
 
     @Test
     void delEpics() {
         taskManager.delEpics();
         assertEquals(0, taskManager.getEpics().size(), "Эпики не удалились.");
+        assertEquals(2, taskManager.getHistory().size(),
+                "Подзадача не удалились из истории при удалении Эпика.");
+        assertEquals(1, taskManager.getPrioritizedTasks().size(), "Подзадачи эпиков не удалились из приоритета.");
+
     }
 
     @Test
     void delSubtasks() {
         taskManager.delSubtasks();
         assertEquals(0, taskManager.getSubtasks().size(), "Подзадачи не удалились.");
+        assertEquals(3, taskManager.getHistory().size(),
+                "Подзадача не удалились из истории.");
+        assertEquals(1, taskManager.getPrioritizedTasks().size(), "Подзадачи не удалились из приоритета.");
+
     }
 
     @Test
     void delTaskById() {
         taskManager.delTaskById(task1.getId());
         assertNull(taskManager.getTaskById(task1.getId()), "Задача 1 не удалилась.");
+        assertEquals(3, taskManager.getHistory().size(),
+                "Задача не удалились из истории.");
+
+        taskManager.delTaskById(task2.getId());
+        assertEquals(2, taskManager.getPrioritizedTasks().size(), "Задача не удалились из приоритета.");
+
+
     }
 
     @Test
     void delSubtaskById() {
+        taskManager.delSubtaskById(subtask3.getId());
+        assertEquals(3, taskManager.getHistory().size(), "Подзадача не удалились из истории.");
         taskManager.delSubtaskById(subtask1.getId());
         assertNull(taskManager.getSubtaskById(subtask1.getId()), "Подзадача 1 не удалилась.");
         assertFalse(taskManager.getEpicById(subtask1.getEpicId()).getSubtasksId().contains(subtask1.getId()),
                 "Подзадача 1 не удалилась из Эпика.");
+        assertEquals(2, taskManager.getPrioritizedTasks().size(), "Подзадача не удалились из приоритета.");
+
     }
 
     @Test
     void delEpicById() {
         taskManager.delEpicById(epic1.getId());
         assertNull(taskManager.getEpicById(epic1.getId()), "Эпик 1 не удалился.");
+        assertEquals(3, taskManager.getHistory().size(), "Эпик 1 не удался из истории.");
+        assertEquals(1, taskManager.getPrioritizedTasks().size(),
+                "Подзадачи эпика не удалились из приоритета.");
     }
 
      @Test
@@ -322,14 +385,14 @@ import static org.junit.jupiter.api.Assertions.*;
                  taskManager.addTask(task);
              }, "Удалось добавить задачу полностью совпадающей по времени выполнения с другой");
 
-         //Попытка добавить задачу пересекающуюся по времени выполнения справа с другой
+         //Попытка добавить задачу, пересекающуюся по времени выполнения справа с другой
           Task task2 = new Task("Задача 1 отдельная", "Описание задачи 1", Status.NEW,
                  LocalDateTime.parse("2025-11-10 01:50", formatterForDataTaskAndCSV), Duration.ofMinutes(60));
          assertThrows(InMemoryTaskManagerException.class, () -> {
              taskManager.addTask(task2);
          }, "Удалось добавить задачу пересекающуюся по времени выполнения справа с другой");
 
-         //Попытка добавить задачу пересекающуюся по времени выполнения слева с другой
+         //Попытка добавить задачу, пересекающуюся по времени выполнения слева с другой
          Task task3 = new Task("Задача 1 отдельная", "Описание задачи 1", Status.NEW,
                  LocalDateTime.parse("2025-11-10 00:01", formatterForDataTaskAndCSV), Duration.ofMinutes(60));
          assertThrows(InMemoryTaskManagerException.class, () -> {

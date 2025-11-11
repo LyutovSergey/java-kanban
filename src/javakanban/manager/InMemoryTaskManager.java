@@ -68,8 +68,8 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
         Task newTask = new Task(task);
-        tasks.replace(newTask.getId(), newTask);
         delFromPrioritizedTasks(tasks.get(task.getId()));
+        tasks.replace(newTask.getId(), newTask);
         addToPrioritizedTasks(newTask);
         return task;
     }
@@ -143,10 +143,10 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
         Subtask newSubtask = new Subtask(subtask);
+        delFromPrioritizedTasks(subtasks.get(subtask.getId()));
         subtasks.replace(newSubtask.getId(), newSubtask);
         calculateStatusEpicById(newSubtask.getEpicId());
         calculateTimeEpicById(newSubtask.getEpicId());
-        delFromPrioritizedTasks(subtasks.get(subtask.getId()));
         addToPrioritizedTasks(newSubtask);
         return subtask;
     }
@@ -177,33 +177,36 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void delTasks() {
-        tasks.keySet()
-        .forEach(historyOfTaskManager::remove);
-        tasks.values().forEach(this::delFromPrioritizedTasks);
+        tasks.keySet().stream()
+                .peek(historyOfTaskManager::remove)
+                .forEach(key -> delFromPrioritizedTasks(tasks.get(key)));
+
         tasks.clear();
     }
 
     @Override
     public void delEpics() {
-        epics.keySet().forEach(historyOfTaskManager::remove);
+        subtasks.values().stream() // subtasks без epics существовать не может и по нему проще пройтись в потоке
+                .peek(subtask -> historyOfTaskManager.remove(subtask.getEpicId()))
+                .peek(subtask -> historyOfTaskManager.remove(subtask.getId()))
+                .forEach(this::delFromPrioritizedTasks);
         epics.clear();
-        subtasks.keySet().forEach(historyOfTaskManager::remove);
-        subtasks.values().forEach(this::delFromPrioritizedTasks);
-        subtasks.clear(); // subtasks без epics существовать не может
+        subtasks.clear();
     }
 
     @Override
     public void delSubtasks() {
-        subtasks.keySet().forEach(historyOfTaskManager::remove);
-        subtasks.values().forEach(this::delFromPrioritizedTasks);
+        subtasks.values().stream()
+                .peek(subtask -> historyOfTaskManager.remove(subtask.getId()))
+                .forEach(this::delFromPrioritizedTasks);
+
         subtasks.clear();
+
         epics.values().forEach(epic -> {
             epic.removeAllSubtaskId();
             calculateStatusEpicById(epic.getId());
             calculateTimeEpicById(epic.getId());
         });
-
-
     }
 
     protected void calculateStatusEpicById(int id) {

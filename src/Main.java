@@ -25,15 +25,11 @@ public class Main {
         taskManager1.addTask(task2);
         taskManager1.delTaskById(task1.getId());
 
-
-
-
         task1 = new Task("Задача 3 отдельная", "Описание задачи 3", Status.NEW);
         task2 = new Task("Задача 4 отдельная", "Описание задачи 4", Status.NEW);
         taskManager1.addTask(task1);
         taskManager1.addTask(task2);
         taskManager1.addTask(task2);
-
 
         task1 = new Task("Задача 5 отдельная", "Описание задачи 5", Status.NEW,
                 LocalDateTime.parse("2025-12-10 01:00", formatterForCSV), Duration.ofMinutes(15));

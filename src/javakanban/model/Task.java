@@ -110,8 +110,8 @@ public class Task {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
-                ", startTime=" + startTime +
-                ", duration=" + (duration != null ? duration.toMinutes() + " мин." : "null") +
+                ", startTime=" + (startTime != null ? startTime : "отсутствует") +
+                ", duration=" + (duration != null ? duration.toMinutes() + " мин." : "отсутствует") +
                 '}';
     }
 
