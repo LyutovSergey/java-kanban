@@ -139,7 +139,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     task.getDescription(),
                     "",
                     task.getStartTime().isPresent() ? task.getStartTime().get().format(formatterForCSV) : "",
-                    task.getDuration().isPresent() ? String.valueOf(task.getDuration().get().toMinutes()): ""
+                    task.getDuration().isPresent() ? String.valueOf(task.getDuration().get().toMinutes()) : ""
             );
             linesCSV.add(lineCSV);
         }
@@ -199,8 +199,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                                 LocalDateTime.parse(dataInLine[6], formatterForCSV),
                                 Duration.ofMinutes(Long.parseLong(dataInLine[7]))
                         );
-                    }
-                    else {
+                    } else {
                         task = new Task(Integer.parseInt(dataInLine[0]),
                                 dataInLine[2],
                                 dataInLine[4],
