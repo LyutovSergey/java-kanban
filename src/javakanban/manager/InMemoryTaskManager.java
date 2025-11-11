@@ -292,16 +292,18 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getStartTime().isEmpty() || task.getEndTime().isEmpty()) {
             return;
         }
-        if ( isOverlapOfTimeTasks(task)) {
+        if (isOverlapOfTimeTasks(task)) {
            throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
         }
         prioritizedTasks.add(task);
     }
-    private void delFromPrioritizedTasks (Task task) {
+
+    private void delFromPrioritizedTasks(Task task) {
         if (task.getStartTime().isPresent()) {
             prioritizedTasks.remove(task);
         }
     }
+
     protected void calculateTimeEpicById(int id) {
 
         Epic epic = epics.get(id);
