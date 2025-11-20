@@ -1,5 +1,10 @@
-id,type,name,status,description,epic
-1,TASK,Task1,NEW,Description task1,
-10,EPIC,Epic2,DONE,Description epic2,
-3,SUBTASK,Sub Task1,DONE,Description sub task1,10
-4,SUBTASK,Sub Task2,DONE,Description sub task2,10
+id,type,name,status,description,epic,startTime,duration
+2,TASK,Задача 2 отдельная,NEW,Описание задачи 2,,2025-11-10 01:10,9
+3,TASK,Задача 3 отдельная,NEW,Описание задачи 3,,,
+4,TASK,Задача 4 отдельная,NEW,Описание задачи 4,,,
+5,TASK,Задача 4 отдельная,NEW,Описание задачи 4,,,
+6,TASK,Задача 5 отдельная,NEW,Описание задачи 5,,2025-12-10 01:00,15
+7,TASK,Задача 6 отдельная,NEW,Описание задачи 6,,2025-10-10 00:50,100
+8,EPIC,Эпик 1 c тремя подзадачами,DONE,Описание Эпика 1,,,
+9,EPIC,Эпик 2 без подзадач ,NEW,Описание Эпика 2,,,
+12,SUBTASK,Подзадача 3 (Эпика 1),DONE,Описание 3,8,2027-10-10 00:50,34

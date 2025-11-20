@@ -18,6 +18,9 @@ public class InMemoryTaskManager implements TaskManager {
     private int currentId = 0;
 
     protected void putTask(Task task) {
+        if (isOverlapOfTimeTasks(task)) {
+            throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
+        }
         Task newTask = new Task(task);
         tasks.put(newTask.getId(), newTask);
         updateId(task);
@@ -31,6 +34,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     protected void putSubtask(Subtask subtask) { //
+        if (isOverlapOfTimeTasks(subtask)) {
+            throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
+        }
         Subtask newSubtask = new Subtask(subtask);
         subtasks.put(newSubtask.getId(), newSubtask);
         if (epics.containsKey(newSubtask.getEpicId())) {
@@ -55,6 +61,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task addTask(Task task) {
+        if (isOverlapOfTimeTasks(task)) {
+                 throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
+              }
         task.setId(getNextId());
         Task newTask = new Task(task); // на теории сообщили, что нужно помещать и возвращать копии объектов
         tasks.put(newTask.getId(), newTask);
@@ -66,6 +75,9 @@ public class InMemoryTaskManager implements TaskManager {
     public Task updateTask(Task task) {
         if (!tasks.containsKey(task.getId())) {
             return null;
+        }
+        if (isOverlapOfTimeTasks(task)) {
+            throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
         }
         Task newTask = new Task(task);
         delFromPrioritizedTasks(tasks.get(task.getId()));
@@ -125,6 +137,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (!epics.containsKey(subtask.getEpicId())) {
             return null;
         }
+        if (isOverlapOfTimeTasks(subtask)) {
+            throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
+        }
         subtask.setId(getNextId());
         Epic linkToEpic = epics.get(subtask.getEpicId());
         linkToEpic.addSubtaskId(subtask.getId());
@@ -141,6 +156,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (!subtasks.containsKey(subtask.getId())
                 || subtask.getEpicId() != subtasks.get(subtask.getId()).getEpicId()) {
             return null;
+        }
+        if (isOverlapOfTimeTasks(subtask)) {
+            throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
         }
         Subtask newSubtask = new Subtask(subtask);
         delFromPrioritizedTasks(subtasks.get(subtask.getId()));
@@ -280,6 +298,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isOverlapOfTimeTasks(Task task) {
+        if (task.getStartTime().isEmpty() || task.getEndTime().isEmpty()) {
+            return false;
+        }
         if (prioritizedTasks.isEmpty()) {
             return false;
         }
@@ -294,9 +315,6 @@ public class InMemoryTaskManager implements TaskManager {
     private void addToPrioritizedTasks(Task task) {
         if (task.getStartTime().isEmpty() || task.getEndTime().isEmpty()) {
             return;
-        }
-        if (isOverlapOfTimeTasks(task)) {
-           throw new InMemoryTaskManagerException("Добавляемая задача пересекается по времени с другими");
         }
         prioritizedTasks.add(task);
     }

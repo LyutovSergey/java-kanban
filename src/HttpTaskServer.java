@@ -14,7 +14,7 @@ public class HttpTaskServer {
     private final static int port=8080;
 
     public static void main(String[] args) throws IOException {
-        TaskManager taskManager = Managers.getDefault();
+        TaskManager taskManager = Managers.getTaskManager(TypeTaskManager.FILE_BACKED);
         // настройка и запуск HTTP-сервера
         HttpServer httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.createContext("/tasks", new TasksHttpHandler(taskManager));
@@ -22,7 +22,7 @@ public class HttpTaskServer {
 
         System.out.println("HTTP-сервер запущен на " + port + " порту!");
         // завершаем работу сервера для корректной работы тренажёра
-        httpServer.stop(180);
+        //httpServer.stop(30);
 
 
     }
