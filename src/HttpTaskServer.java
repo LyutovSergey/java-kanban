@@ -5,7 +5,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Main {
+public class HttpTaskServer {
 
     public static void main(String[] args) {
 
