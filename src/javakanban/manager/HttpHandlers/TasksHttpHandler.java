@@ -20,67 +20,98 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        this.exchange = exchange;
         String[] paramsURI =  exchange.getRequestURI().getPath().split("/");
 
         switch (exchange.getRequestMethod()) {
             case "GET": {
-                if (paramsURI.length == 2) {
+                if (paramsURI.length == 2) { // Запрос всех объектов
                     String json = gson.toJson(taskManager.getTasks());
-                    sendText(exchange, json);
-                    break;
-                } else if (paramsURI.length == 3 && getIdFromString(exchange, paramsURI[2]).isPresent()) {
-                    Task task = taskManager.getTaskById(getIdFromString(exchange, paramsURI[2]).get());
+                    sendText(json);
+                    break; // Выход из GET
+                }
 
+                // Запрос по id
+                if (paramsURI.length == 3 && getIdFromString(paramsURI[2]).isPresent()) {
+                    Task task = taskManager.getTaskById(getIdFromString(paramsURI[2]).get());
                     if (task == null) {
-                        sendNotFound(exchange);
+                        sendNotFound();
                     } else {
                         String json = gson.toJson(task);
-                        sendText(exchange, json);
+                        sendText(json);
                     }
-                }
-                break;
-            }
-            case "POST": {
-                Task task, savedTask, tepmTAsk;
-                InputStream inputStream = exchange.getRequestBody();
-                String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-               try {
-                    task = gson.fromJson(requestBody, Task.class);
-                } catch (JsonSyntaxException e) {
-                    sendNotAcceptable(exchange);
-                    break;
+                    break; // Выход из GET
                 }
 
-                if (task.getId() != null) { // попытка обновить
+                // Неверный id или URL запроса
+                sendNotFound();
+                break; // Выход из GET
+            }
+            case "POST": {
+                Task task, savedTask;
+                InputStream inputStream = exchange.getRequestBody();
+                String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                // Десериализация
+                try {
+                    task = gson.fromJson(requestBody, Task.class);
+                } catch (JsonSyntaxException e) {
+                    sendNotAcceptable();
+                    break; // Выход из POST по ошибке
+                }
+
+                if (task.getId() != null) { // Попытка обновить объект
                     try {
                         savedTask =taskManager.updateTask(task);
                     } catch (InMemoryTaskManagerException e) { //ошибка
-                        sendNotAcceptable(exchange);
-                        break;
+                        sendNotAcceptable();
+                        break; // Выход из POST по ошибке
                     }
                     if (savedTask != null) { // успешно
-                        sendDone(exchange);
+                        sendDone();
                     } else {
-                        sendNotFound(exchange); // не найдено
+                        sendNotFound(); // Объект для обновления не найден
                     }
+                    break; // Выход из POST
+                }
 
-                } else { // Добавляем новое
-
+                if (task.getId() == null) {  // Создаем новый объект
                     try {
                         savedTask = taskManager.addTask(task);;
                     } catch (InMemoryTaskManagerException e) { //ошибка
-                        sendNotAcceptable(exchange);
-                        break;
+                        sendNotAcceptable();
+                        break; // Выход из POST по ошибке
                     }
-                    sendDone(exchange);
+                    sendDone();
+                    break; // Выход из POST
                 }
-                break;
+
+                // Неверный id или URL запроса
+                sendNotFound();
+                break; // Выход из POST
+
             }
             case "DELETE": {
+                if (paramsURI.length == 2) { // Удаление всех задач
+                    taskManager.delTasks();
+                    sendDone();
+                    break; // Выход из DELETE
+                }
 
-                break;
+                // Удаляем конкретный объект
+                if (paramsURI.length == 3 && getIdFromString(paramsURI[2]).isPresent()) {
+                    taskManager.delTaskById(getIdFromString(paramsURI[2]).get());
+                    sendDone();
+                    break; // Выход из DELETE
+                }
+
+                // Неверный id или URL запроса
+                sendNotFound();
+                break; // Выход из DELETE
             }
             default:
+                // Неверный id или URL запроса
+                sendNotFound();
+                break; // Выход из DELETE
 
         }
 

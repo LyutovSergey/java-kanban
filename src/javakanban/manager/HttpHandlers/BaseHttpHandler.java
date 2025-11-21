@@ -19,6 +19,7 @@ public abstract class BaseHttpHandler {
 
     protected static Gson gson;
     protected static TaskManager taskManager;
+    protected HttpExchange exchange;
 
     public BaseHttpHandler(TaskManager taskManager) {
         gson = new GsonBuilder()
@@ -30,18 +31,18 @@ public abstract class BaseHttpHandler {
         BaseHttpHandler.taskManager = taskManager;
     }
 
-    protected Optional<Integer> getIdFromString(HttpExchange exchange, String string) throws IOException {
+    protected Optional<Integer> getIdFromString( String string) throws IOException {
         int id;
         try {
             id = Integer.parseInt(string);
         } catch (NumberFormatException e) {
-            sendNInternalError(exchange);
+           // sendNInternalError();
             return Optional.empty();
         }
         return Optional.of(id);
     }
 
-    protected void sendResponse(HttpExchange exchange, String text, int code) throws IOException {
+    protected void sendResponse(String text, int code) throws IOException {
         byte[] resp = text.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
         exchange.sendResponseHeaders(code, resp.length);
@@ -49,25 +50,25 @@ public abstract class BaseHttpHandler {
         exchange.close();
     }
 
-    protected void sendText(HttpExchange exchange, String text) throws IOException {
-        sendResponse( exchange, text , 200);
+    protected void sendText(String text) throws IOException {
+        sendResponse( text , 200);
     }
 
-    protected void sendDone(HttpExchange exchange) throws IOException {
-        sendResponse( exchange, "" , 201);
+    protected void sendDone() throws IOException {
+        sendResponse("" , 201);
     }
 
-    protected void sendNotFound(HttpExchange exchange) throws IOException {
-        sendResponse( exchange, "404 Not Found" , 404);
+    protected void sendNotFound() throws IOException {
+        sendResponse( "404 Not Found" , 404);
     }
 
-    protected void sendNotAcceptable(HttpExchange exchange) throws IOException {
-        sendResponse( exchange, "406 Not Acceptable" , 406);
+    protected void sendNotAcceptable() throws IOException {
+        sendResponse("406 Not Acceptable" , 406);
     }
 
 
-    protected void sendNInternalError(HttpExchange exchange) throws IOException {
-        sendResponse( exchange, "500 Internal Server Error" , 500);
+    protected void sendNInternalError() throws IOException {
+        sendResponse("500 Internal Server Error" , 500);
     }
 
 
