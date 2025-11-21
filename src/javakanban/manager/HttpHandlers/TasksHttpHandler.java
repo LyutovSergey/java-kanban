@@ -9,9 +9,8 @@ import javakanban.model.Task;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
+
 
 public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
     public TasksHttpHandler(TaskManager taskManager) {
@@ -76,7 +75,7 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
 
                 if (task.getId() == null) {  // Создаем новый объект
                     try {
-                        savedTask = taskManager.addTask(task);;
+                        taskManager.addTask(task);
                     } catch (InMemoryTaskManagerException e) { //ошибка
                         sendNotAcceptable();
                         break; // Выход из POST по ошибке
