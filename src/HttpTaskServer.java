@@ -1,5 +1,7 @@
 import com.sun.net.httpserver.HttpServer;
 import javakanban.manager.*;
+import javakanban.manager.HttpHandlers.EpicsHttpHandler;
+import javakanban.manager.HttpHandlers.SubtasksHttpHandler;
 import javakanban.manager.HttpHandlers.TasksHttpHandler;
 import javakanban.model.*;
 
@@ -18,6 +20,8 @@ public class HttpTaskServer {
         // настройка и запуск HTTP-сервера
         HttpServer httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.createContext("/tasks", new TasksHttpHandler(taskManager));
+        httpServer.createContext("/subtasks", new SubtasksHttpHandler(taskManager));
+        httpServer.createContext("/epics", new EpicsHttpHandler(taskManager));
         httpServer.start(); // запускаем сервер
 
         System.out.println("HTTP-сервер запущен на " + port + " порту!");

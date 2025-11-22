@@ -4,15 +4,15 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import javakanban.exceptions.InMemoryTaskManagerException;
 import javakanban.manager.TaskManager;
-import javakanban.model.Task;
+import javakanban.model.Subtask;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 
-public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
-    public TasksHttpHandler(TaskManager taskManager) {
+public class SubtasksHttpHandler extends BaseHttpHandler implements HttpHandler {
+    public SubtasksHttpHandler(TaskManager taskManager) {
         super(taskManager);
     }
 
@@ -24,18 +24,18 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
         switch (exchange.getRequestMethod()) {
             case "GET": {
                 if (paramsURI.length == 2) { // Запрос всех объектов
-                    String json = gson.toJson(taskManager.getTasks());
+                    String json = gson.toJson(taskManager.getSubtasks());
                     sendText(json);
                     break; // Выход из GET
                 }
 
                 // Запрос по id
                 if (paramsURI.length == 3 && getIdFromString(paramsURI[2]).isPresent()) {
-                    Task task = taskManager.getTaskById(getIdFromString(paramsURI[2]).get());
-                    if (task == null) {
+                    Subtask subtask = taskManager.getSubtaskById(getIdFromString(paramsURI[2]).get());
+                    if (subtask == null) {
                         sendNotFound();
                     } else {
-                        String json = gson.toJson(task);
+                        String json = gson.toJson(subtask);
                         sendText(json);
                     }
                     break; // Выход из GET
@@ -46,25 +46,25 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
                 break; // Выход из GET
             }
             case "POST": {
-                Task task, savedTask;
+                Subtask subtask, savedSubtask;
                 InputStream inputStream = exchange.getRequestBody();
                 String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                 // Десериализация
                 try {
-                    task = gson.fromJson(requestBody, Task.class);
+                    subtask = gson.fromJson(requestBody, Subtask.class);
                 } catch (Exception e) {
                     sendNotAcceptable();
                     break; // Выход из POST по ошибке
                 }
 
-                if (task.getId() != null) { // Попытка обновить объект
+                if (subtask.getId() != null) { // Попытка обновить объект
                     try {
-                        savedTask =taskManager.updateTask(task);
+                        savedSubtask =taskManager.updateSubtask(subtask);
                     } catch (InMemoryTaskManagerException e) { //ошибка
                         sendNotAcceptable();
                         break; // Выход из POST по ошибке
                     }
-                    if (savedTask != null) { // успешно
+                    if (savedSubtask != null) { // успешно
                         sendCreated();
                     } else {
                         sendNotFound(); // Объект для обновления не найден
@@ -72,14 +72,18 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
                     break; // Выход из POST
                 }
 
-                if (task.getId() == null) {  // Создаем новый объект
+                if (subtask.getId() == null) {  // Создаем новый объект
                     try {
-                        taskManager.addTask(task);
+                        savedSubtask = taskManager.addSubtask(subtask);
                     } catch (InMemoryTaskManagerException e) { //ошибка
                         sendNotAcceptable();
                         break; // Выход из POST по ошибке
                     }
-                    sendCreated();
+                    if (savedSubtask != null) { // успешно
+                        sendCreated();
+                    } else {
+                        sendNotAcceptable(); // Ошибка при создании
+                    }
                     break; // Выход из POST
                 }
 
@@ -90,7 +94,7 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
             }
             case "DELETE": {
                 if (paramsURI.length == 2) { // Удаление всех задач
-                    taskManager.delTasks();
+                    taskManager.delSubtasks();
                     sendOk();
                     break; // Выход из DELETE
                 }
@@ -98,8 +102,8 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
                 // Удаляем конкретный объект
                 if (paramsURI.length == 3
                         && getIdFromString(paramsURI[2]).isPresent()
-                        && taskManager.getTaskById(getIdFromString(paramsURI[2]).get()) != null) {
-                    taskManager.delTaskById(getIdFromString(paramsURI[2]).get());
+                        && taskManager.getSubtaskById(getIdFromString(paramsURI[2]).get()) != null) {
+                    taskManager.delSubtaskById(getIdFromString(paramsURI[2]).get());
                     sendOk();
                     break; // Выход из DELETE
                 }

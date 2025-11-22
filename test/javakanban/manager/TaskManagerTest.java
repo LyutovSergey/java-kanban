@@ -150,8 +150,7 @@ import static org.junit.jupiter.api.Assertions.*;
         assertEquals(2, subtasks.size(), "Вернулся массив подзадач неверного размера.");
         assertTrue(subtasks.contains(subtask1),"В Эпике 1 отсутствует Подзадача 1.");
         assertTrue(subtasks.contains(subtask2),"В Эпике 1 отсутствует Подзадача 2.");
-        subtasks = new ArrayList<>(taskManager.getSubtasksOfEpicById(100));
-        assertEquals(0, subtasks.size(), "Вернулся массив подзадач неверного размера.");
+        assertNull(taskManager.getSubtasksOfEpicById(100), "Вернулся массив подзадач неверного размера.");
     }
 
     @Test

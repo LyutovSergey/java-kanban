@@ -128,8 +128,9 @@ public class InMemoryTaskManager implements TaskManager {
             subtasksOfEpic = epics.get(id).getSubtasksId().stream()
                     .map(subtasks::get)
                     .collect(Collectors.toList());
+            return subtasksOfEpic;
         }
-        return subtasksOfEpic;
+        return null;
     }
 
     @Override
@@ -255,6 +256,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void delTaskById(int id) {
+        if (!tasks.containsKey(id)) {
+            return;
+        }
         delFromPrioritizedTasks(tasks.get(id));
         historyOfTaskManager.remove(id);
         tasks.remove(id);
@@ -320,7 +324,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void delFromPrioritizedTasks(Task task) {
-        if (task.getStartTime().isPresent()) {
+        if ( task!=null && task.getStartTime().isPresent()) {
             prioritizedTasks.remove(task);
         }
     }

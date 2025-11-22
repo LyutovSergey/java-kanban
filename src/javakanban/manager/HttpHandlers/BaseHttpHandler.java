@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import javakanban.manager.TaskManager;
@@ -54,7 +55,15 @@ public abstract class BaseHttpHandler {
         sendResponse( text , 200);
     }
 
-    protected void sendDone() throws IOException {
+    protected void sendCreated() throws IOException {
+        sendResponse("" , 201);
+    }
+
+    protected void sendOk() throws IOException {
+        sendResponse("" , 200);
+    }
+
+    protected void sendDone200() throws IOException {
         sendResponse("" , 201);
     }
 
@@ -87,12 +96,14 @@ public abstract class BaseHttpHandler {
 
         @Override
         public LocalDateTime read(final JsonReader jsonReader) throws IOException {
-            String value = jsonReader.nextString();
-            if ("null".equals(value)) {
+            if (jsonReader.peek() == JsonToken.NULL) {
+                jsonReader.nextNull();
                 return null;
             } else {
+                String value = jsonReader.nextString();
                 return LocalDateTime.parse(value, formatter);
             }
+
         }
     }
 
@@ -109,14 +120,13 @@ public abstract class BaseHttpHandler {
 
         @Override
         public Duration read(JsonReader jsonReader) throws IOException {
-            String value = jsonReader.nextString();
-            if ("null".equals(value)) {
+            if (jsonReader.peek() == JsonToken.NULL) {
+                jsonReader.nextNull();
                 return null;
             } else {
-                //return Duration.ofMinutes(jsonReader.nextLong());
+                String value = jsonReader.nextString();
                 long minutes = Long.parseLong(value);
                 return Duration.ofMinutes(minutes);
-
             }
         }
     }
