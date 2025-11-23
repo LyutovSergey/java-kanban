@@ -19,6 +19,7 @@ public abstract class BaseHttpHandler {
         GsonBuilderForHTTP jsonBuilderForHTTP = new GsonBuilderForHTTP();
         gson =  jsonBuilderForHTTP.getGson();
     }
+
     protected Optional<Integer> getIdFromString( String string) {
         int id;
         try {
@@ -39,34 +40,29 @@ public abstract class BaseHttpHandler {
     }
 
     protected void sendText(String text) throws IOException {
-        sendResponse( text , 200);
+        sendResponse(text, 200);
     }
 
     protected void sendCreated() throws IOException {
-        sendResponse("" , 201);
+        sendResponse("", 201);
     }
 
     protected void sendOk() throws IOException {
-        sendResponse("" , 200);
+        sendResponse("", 200);
     }
 
-
     protected void sendNotFound() throws IOException {
-        sendResponse( "404 Not Found" , 404);
+        sendResponse( "404 Not Found", 404);
     }
     protected void sendHasOverlaps() throws IOException {
         sendNotAcceptable();
     }
 
     protected void sendNotAcceptable() throws IOException {
-        sendResponse("406 Not Acceptable" , 406);
+        sendResponse("406 Not Acceptable", 406);
     }
-
-
 
     protected void sendNInternalError() throws IOException {
-        sendResponse("500 Internal Server Error" , 500);
+        sendResponse("500 Internal Server Error", 500);
     }
-
-
 }
