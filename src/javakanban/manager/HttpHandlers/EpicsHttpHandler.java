@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 import javakanban.exceptions.InMemoryTaskManagerException;
 import javakanban.manager.TaskManager;
 import javakanban.model.Epic;
+import javakanban.model.Status;
 import javakanban.model.Subtask;
 
 import java.io.IOException;
@@ -18,11 +19,11 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
         super(taskManager);
     }
 
-    protected boolean isCorrectDataEpic(Epic epic) { // обновить у эпика можно только имя и описание
+    protected boolean isCorrectDataEpic(Epic epic) { // Разрешено только id, name и description
         return epic.getEndTime().isEmpty()
                 && epic.getStartTime().isEmpty()
                 && epic.getDuration().isEmpty()
-                && epic.getStatus() == null
+                && (epic.getStatus() == null || epic.getStatus() == Status.NEW)
                 && epic.getSubtasksId().isEmpty();
     }
 
@@ -70,7 +71,7 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
                 sendNotFound();
                 break; // Выход из GET
             }
-            case "POST": {
+            case "POST": { // Разрешено только id, name и description
                 if (paramsURI.length != 2) { // не удалось распознать команду
                     sendNotFound();
                     break; // Выход из GET
@@ -86,7 +87,7 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
                     break; // Выход из POST по ошибке
                 }
 
-                if (!isCorrectDataEpic(epic)) { // обновить у эпика можно только имя и описание
+                if (!isCorrectDataEpic(epic)) { // Разрешено только id, name и description
                     sendNotAcceptable();
                     break; // Выход из POST по ошибке
                 }

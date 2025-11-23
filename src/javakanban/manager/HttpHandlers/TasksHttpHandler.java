@@ -3,6 +3,7 @@ package javakanban.manager.HttpHandlers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import javakanban.exceptions.InMemoryTaskManagerException;
+import javakanban.exceptions.ManagerFileSaveException;
 import javakanban.manager.TaskManager;
 import javakanban.model.Task;
 
@@ -61,6 +62,11 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
                     break; // Выход из POST по ошибке
                 }
 
+                if (task.getStatus() == null) { // Проверка на наличие статуса
+                    sendNotAcceptable();
+                    break; // Выход из POST по ошибке
+                }
+
                 if (task.getId() != null) { // Попытка обновить объект
                     try {
                         savedTask =taskManager.updateTask(task);
@@ -82,6 +88,8 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
                     } catch (InMemoryTaskManagerException e) { //ошибка
                         sendNotAcceptable();
                         break; // Выход из POST по ошибке
+                    } catch (ManagerFileSaveException e) {
+                        sendNInternalError();
                     }
                     sendCreated();
                     break; // Выход из POST

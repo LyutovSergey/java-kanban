@@ -61,6 +61,12 @@ public class SubtasksHttpHandler extends BaseHttpHandler implements HttpHandler 
                     break; // Выход из POST по ошибке
                 }
 
+                if (subtask.getStatus() == null) { // Проверка на наличие статуса
+                    sendNotAcceptable();
+                    break; // Выход из POST по ошибке
+                }
+
+
                 if (subtask.getId() != null) { // Попытка обновить объект
                     try {
                         savedSubtask =taskManager.updateSubtask(subtask);
