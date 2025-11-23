@@ -69,7 +69,7 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
 
                 if (task.getId() != null) { // Попытка обновить объект
                     try {
-                        savedTask =taskManager.updateTask(task);
+                        savedTask = taskManager.updateTask(task);
                     } catch (InMemoryTaskManagerException e) { //ошибка
                         sendHasOverlaps();
                         break; // Выход из POST по ошибке
