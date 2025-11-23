@@ -25,7 +25,8 @@ public class HttpTaskServer {
         httpServer.start(); // запускаем сервер
         System.out.println("HTTP-сервер запущен на " + port + " порту!");
     }
-    protected static void stop(){
+
+    protected static void stop() {
         httpServer.stop(0);
     }
 
