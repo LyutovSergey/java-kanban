@@ -20,7 +20,7 @@ public abstract class BaseHttpHandler {
         gson =  jsonBuilderForHTTP.getGson();
     }
 
-    protected Optional<Integer> getIdFromString( String string) {
+    protected Optional<Integer> getIdFromString(String string) {
         int id;
         try {
             id = Integer.parseInt(string);
@@ -52,8 +52,9 @@ public abstract class BaseHttpHandler {
     }
 
     protected void sendNotFound() throws IOException {
-        sendResponse( "404 Not Found", 404);
+        sendResponse("404 Not Found", 404);
     }
+
     protected void sendHasOverlaps() throws IOException {
         sendNotAcceptable();
     }
