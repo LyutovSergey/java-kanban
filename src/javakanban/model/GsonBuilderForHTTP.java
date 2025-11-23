@@ -6,14 +6,12 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class GsonBuilderForHTTP {
-
     private final Gson gson;
 
     public GsonBuilderForHTTP() {
@@ -28,6 +26,7 @@ public class GsonBuilderForHTTP {
     public Gson getGson() {
         return this.gson;
     }
+
     public static class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
         private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
