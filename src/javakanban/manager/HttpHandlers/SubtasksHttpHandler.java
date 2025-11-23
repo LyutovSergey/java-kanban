@@ -69,7 +69,7 @@ public class SubtasksHttpHandler extends BaseHttpHandler implements HttpHandler 
 
                 if (subtask.getId() != null) { // Попытка обновить объект
                     try {
-                        savedSubtask =taskManager.updateSubtask(subtask);
+                        savedSubtask = taskManager.updateSubtask(subtask);
                     } catch (InMemoryTaskManagerException e) { //ошибка
                         sendHasOverlaps();
                         break; // Выход из POST по ошибке
