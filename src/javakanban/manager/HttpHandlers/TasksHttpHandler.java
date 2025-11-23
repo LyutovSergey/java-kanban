@@ -46,6 +46,10 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
                 break; // Выход из GET
             }
             case "POST": {
+                if (paramsURI.length != 2) { // не удалось распознать команду
+                    sendNotFound();
+                    break; // Выход из GET
+                }
                 Task task, savedTask;
                 InputStream inputStream = exchange.getRequestBody();
                 String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -61,7 +65,7 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
                     try {
                         savedTask =taskManager.updateTask(task);
                     } catch (InMemoryTaskManagerException e) { //ошибка
-                        sendNotAcceptable();
+                        sendHasOverlaps();
                         break; // Выход из POST по ошибке
                     }
                     if (savedTask != null) { // успешно

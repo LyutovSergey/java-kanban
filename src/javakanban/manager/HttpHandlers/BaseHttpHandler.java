@@ -1,19 +1,11 @@
 package javakanban.manager.HttpHandlers;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import javakanban.manager.TaskManager;
-
+import javakanban.model.GsonBuilderForHTTP;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 public abstract class BaseHttpHandler {
@@ -23,15 +15,10 @@ public abstract class BaseHttpHandler {
     protected HttpExchange exchange;
 
     public BaseHttpHandler(TaskManager taskManager) {
-        gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .serializeNulls()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .create();
         BaseHttpHandler.taskManager = taskManager;
+        GsonBuilderForHTTP jsonBuilderForHTTP = new GsonBuilderForHTTP();
+        gson =  jsonBuilderForHTTP.getGson();
     }
-
     protected Optional<Integer> getIdFromString( String string) throws IOException {
         int id;
         try {
@@ -63,12 +50,12 @@ public abstract class BaseHttpHandler {
         sendResponse("" , 200);
     }
 
-    protected void sendDone200() throws IOException {
-        sendResponse("" , 201);
-    }
 
     protected void sendNotFound() throws IOException {
         sendResponse( "404 Not Found" , 404);
+    }
+    protected void sendHasOverlaps() throws IOException {
+        sendNotAcceptable();
     }
 
     protected void sendNotAcceptable() throws IOException {
@@ -76,58 +63,10 @@ public abstract class BaseHttpHandler {
     }
 
 
+
     protected void sendNInternalError() throws IOException {
         sendResponse("500 Internal Server Error" , 500);
     }
 
 
-    public static class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
-        private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-
-        @Override
-        public void write(final JsonWriter jsonWriter, final LocalDateTime localDateTime) throws IOException {
-
-            if (localDateTime == null) {
-                jsonWriter.nullValue();
-            } else {
-                jsonWriter.value(localDateTime.format(formatter));
-            }
-        }
-
-        @Override
-        public LocalDateTime read(final JsonReader jsonReader) throws IOException {
-            if (jsonReader.peek() == JsonToken.NULL) {
-                jsonReader.nextNull();
-                return null;
-            } else {
-                String value = jsonReader.nextString();
-                return LocalDateTime.parse(value, formatter);
-            }
-
-        }
-    }
-
-    public static class DurationAdapter extends TypeAdapter<Duration> {
-        @Override
-        public void write(final JsonWriter jsonWriter, final Duration duration) throws IOException {
-
-            if (duration == null) {
-                jsonWriter.nullValue();
-            } else {
-                jsonWriter.value(duration.toMinutes());
-            }
-        }
-
-        @Override
-        public Duration read(JsonReader jsonReader) throws IOException {
-            if (jsonReader.peek() == JsonToken.NULL) {
-                jsonReader.nextNull();
-                return null;
-            } else {
-                String value = jsonReader.nextString();
-                long minutes = Long.parseLong(value);
-                return Duration.ofMinutes(minutes);
-            }
-        }
-    }
 }

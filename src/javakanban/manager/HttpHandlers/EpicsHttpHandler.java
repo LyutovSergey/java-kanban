@@ -18,6 +18,14 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
         super(taskManager);
     }
 
+    protected boolean isCorrectDataEpic(Epic epic) { // обновить у эпика можно только имя и описание
+        return epic.getEndTime().isEmpty()
+                && epic.getStartTime().isEmpty()
+                && epic.getDuration().isEmpty()
+                && epic.getStatus() == null
+                && epic.getSubtasksId().isEmpty();
+    }
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         this.exchange = exchange;
@@ -63,21 +71,30 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
                 break; // Выход из GET
             }
             case "POST": {
-                Epic Epic, savedEpic;
+                if (paramsURI.length != 2) { // не удалось распознать команду
+                    sendNotFound();
+                    break; // Выход из GET
+                }
+                Epic epic, savedEpic;
                 InputStream inputStream = exchange.getRequestBody();
                 String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                 // Десериализация
                 try {
-                    Epic = gson.fromJson(requestBody, Epic.class);
+                    epic = gson.fromJson(requestBody, Epic.class);
                 } catch (Exception e) {
                     sendNotAcceptable();
                     break; // Выход из POST по ошибке
                 }
 
-                if (Epic.getId() != null) { // Попытка обновить объект
+                if (!isCorrectDataEpic(epic)) { // обновить у эпика можно только имя и описание
+                    sendNotAcceptable();
+                    break; // Выход из POST по ошибке
+                }
+
+                if (epic.getId() != null) { // Попытка обновить объект
                     try {
-                        savedEpic =taskManager.updateEpic(Epic);
-                    } catch (InMemoryTaskManagerException e) { //ошибка
+                        savedEpic =taskManager.updateEpic(epic);
+                    } catch (Exception e) { //ошибка
                         sendNotAcceptable();
                         break; // Выход из POST по ошибке
                     }
@@ -89,9 +106,9 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
                     break; // Выход из POST
                 }
 
-                if (Epic.getId() == null) {  // Создаем новый объект
+                if (epic.getId() == null) {  // Создаем новый объект
                     try {
-                        savedEpic = taskManager.addEpic(Epic);
+                        savedEpic = taskManager.addEpic(epic);
                     } catch (InMemoryTaskManagerException e) { //ошибка
                         sendNotAcceptable();
                         break; // Выход из POST по ошибке
