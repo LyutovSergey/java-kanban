@@ -331,7 +331,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void delFromPrioritizedTasks(Task task) {
-        if ( task!=null && task.getStartTime().isPresent()) {
+        if (task != null && task.getStartTime().isPresent()) {
             prioritizedTasks.remove(task);
         }
     }
