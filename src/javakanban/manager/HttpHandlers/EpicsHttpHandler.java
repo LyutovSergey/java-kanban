@@ -42,11 +42,11 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
 
                 // Запрос по id
                 if (paramsURI.length == 3 && getIdFromString(paramsURI[2]).isPresent()) {
-                    Epic Epic = taskManager.getEpicById(getIdFromString(paramsURI[2]).get());
-                    if (Epic == null) {
+                    Epic epic = taskManager.getEpicById(getIdFromString(paramsURI[2]).get());
+                    if (epic == null) {
                         sendNotFound();
                     } else {
-                        String json = gson.toJson(Epic);
+                        String json = gson.toJson(epic);
                         sendText(json);
                     }
                     break; // Выход из GET
@@ -58,7 +58,7 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
                         && paramsURI[3].equals("subtasks")) {
 
                     List<Subtask> subtasksOfEpic = taskManager.getSubtasksOfEpicById(getIdFromString(paramsURI[2]).get());
-                    if ( subtasksOfEpic == null) {
+                    if (subtasksOfEpic == null) {
                         sendNotFound();
                     } else {
                         String json = gson.toJson(subtasksOfEpic);
@@ -94,7 +94,7 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
 
                 if (epic.getId() != null) { // Попытка обновить объект
                     try {
-                        savedEpic =taskManager.updateEpic(epic);
+                        savedEpic = taskManager.updateEpic(epic);
                     } catch (Exception e) { //ошибка
                         sendNotAcceptable();
                         break; // Выход из POST по ошибке
