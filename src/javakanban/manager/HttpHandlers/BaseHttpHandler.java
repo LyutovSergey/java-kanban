@@ -19,7 +19,7 @@ public abstract class BaseHttpHandler {
         GsonBuilderForHTTP jsonBuilderForHTTP = new GsonBuilderForHTTP();
         gson =  jsonBuilderForHTTP.getGson();
     }
-    protected Optional<Integer> getIdFromString( String string) throws IOException {
+    protected Optional<Integer> getIdFromString( String string) {
         int id;
         try {
             id = Integer.parseInt(string);

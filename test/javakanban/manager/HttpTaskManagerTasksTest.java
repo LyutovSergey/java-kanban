@@ -184,8 +184,8 @@ public class HttpTaskManagerTasksTest {
         // вызываем рест
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         // проверяем код ответа
-        assertEquals(200, response.statusCode());
-        assertEquals(jsonTasks, response.body());
+        assertEquals(200, response.statusCode(), "Запрос завершился с ошибкой");
+        assertEquals(jsonTasks, response.body(), "Ответ не соответствует ожидаемому");
 
         // Тест на получение задачи по id
         String jsonTask2 = gson.toJson(taskManager.getTaskById(task2.getId()));
@@ -194,8 +194,8 @@ public class HttpTaskManagerTasksTest {
         // вызываем рест
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
         // проверяем код ответа
-        assertEquals(200, response.statusCode());
-        assertEquals(jsonTask2, response.body());
+        assertEquals(200, response.statusCode(), "Не удалось получить задачу по id");
+        assertEquals(jsonTask2, response.body(), "Ответ не соответствует ожидаемому");
 
         //Тест на get несуществующей задачи
         url = URI.create("http://localhost:8080/tasks/" + 123);
@@ -203,7 +203,7 @@ public class HttpTaskManagerTasksTest {
         // вызываем рест
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
         // проверяем код ответа
-        assertEquals(404, response.statusCode());
+        assertEquals(404, response.statusCode(),"Запрос несуществующего объекта отработал некорректно");
     }
 
 }
