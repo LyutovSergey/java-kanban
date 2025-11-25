@@ -3,7 +3,6 @@ package javakanban.manager.HttpHandlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import javakanban.exceptions.InMemoryTaskManagerException;
 import javakanban.exceptions.ManagerFileSaveException;
 import javakanban.manager.TaskManager;
 import javakanban.model.Epic;
