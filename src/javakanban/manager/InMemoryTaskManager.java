@@ -95,14 +95,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic addEpic(Epic epic) {
-
-
         epic.setId(getNextId());
-   //     epic.setStatus(Status.NEW);
-    //    epic.removeAllSubtaskId();
-
-
-       // Epic newEpic = new Epic(getNextId(), epic.getName(), epic.getDescription(), Status.NEW);
+        epic.setStatus(Status.NEW);
         Epic newEpic = new Epic(epic.getId(), epic.getName(), epic.getDescription(), Status.NEW);
         epics.put(newEpic.getId(), newEpic);
         return epic;

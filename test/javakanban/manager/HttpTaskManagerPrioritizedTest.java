@@ -25,6 +25,7 @@ public class HttpTaskManagerPrioritizedTest {
     private Subtask subtask1, subtask2, subtask3;
     private Epic epic1, epic2;
     private Task task1, task2, task3;
+    private final HttpTaskServer httpTaskServer= new HttpTaskServer(8080, taskManager);
     DateTimeFormatter formatterForDataTaskAndCSV = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public HttpTaskManagerPrioritizedTest() throws IOException {
@@ -35,12 +36,12 @@ public class HttpTaskManagerPrioritizedTest {
         taskManager.delTasks();
         taskManager.delSubtasks();
         taskManager.delEpics();
-        HttpTaskServer.start(taskManager);
+        httpTaskServer.start();
     }
 
     @AfterEach
     public void shutDown() {
-        HttpTaskServer.stop();
+        httpTaskServer.stop();
     }
 
     private void setVariable() {

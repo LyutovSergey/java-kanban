@@ -22,6 +22,7 @@ public class HttpTaskManagerSubtaskTest {
     private final TaskManager taskManager = Managers.getTaskManager(TypeTaskManager.IN_MEMORY);
     private Epic epic1, epic2;
     private final Gson gson = (new GsonBuilderForHTTP()).getGson();
+    private final HttpTaskServer httpTaskServer= new HttpTaskServer(8080, taskManager);
     DateTimeFormatter formatterForDataTaskAndCSV = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public HttpTaskManagerSubtaskTest() throws IOException {
@@ -32,7 +33,7 @@ public class HttpTaskManagerSubtaskTest {
         taskManager.delTasks();
         taskManager.delSubtasks();
         taskManager.delEpics();
-        HttpTaskServer.start(taskManager);
+        httpTaskServer.start();
         epic1 = new Epic("Эпик 1", "Описание Эпика 1");
         epic2 = new Epic("Эпик 2", "Описание Эпика 2");
         taskManager.addEpic(epic1);
@@ -41,7 +42,7 @@ public class HttpTaskManagerSubtaskTest {
 
     @AfterEach
     public void shutDown() {
-        HttpTaskServer.stop();
+        httpTaskServer.stop();
     }
 
     @Test

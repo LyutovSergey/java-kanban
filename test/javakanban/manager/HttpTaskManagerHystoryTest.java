@@ -25,6 +25,7 @@ public class HttpTaskManagerHystoryTest {
     private Subtask subtask1, subtask2, subtask3;
     private Epic epic1, epic2;
     private Task task1, task2, task3;
+    private final HttpTaskServer httpTaskServer= new HttpTaskServer(8080, taskManager);
     DateTimeFormatter formatterForDataTaskAndCSV = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public HttpTaskManagerHystoryTest() throws IOException {
@@ -35,7 +36,7 @@ public class HttpTaskManagerHystoryTest {
         taskManager.delTasks();
         taskManager.delSubtasks();
         taskManager.delEpics();
-        HttpTaskServer.start(taskManager);
+        httpTaskServer.start();
         epic1 = new Epic("Эпик 1", "Описание Эпика 1");
         epic2 = new Epic("Эпик 2", "Описание Эпика 2");
         taskManager.addEpic(epic1);
@@ -63,7 +64,7 @@ public class HttpTaskManagerHystoryTest {
 
     @AfterEach
     public void shutDown() {
-        HttpTaskServer.stop();
+        httpTaskServer.stop();
     }
 
     @Test

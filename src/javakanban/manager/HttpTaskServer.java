@@ -1,5 +1,6 @@
 package javakanban.manager;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import javakanban.manager.HttpHandlers.*;
 import javakanban.model.*;
@@ -18,14 +19,14 @@ public class HttpTaskServer {
     }
 
     protected void start() throws IOException {
+        Gson gson = (new GsonBuilderForHTTP()).getGson();
         // настройка и запуск HTTP-сервера
-        HttpTaskServer.taskManager = this.taskManager;
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
-        httpServer.createContext("/tasks", new TasksHttpHandler(taskManager));
-        httpServer.createContext("/subtasks", new SubtasksHttpHandler(taskManager));
-        httpServer.createContext("/epics", new EpicsHttpHandler(taskManager));
-        httpServer.createContext("/history", new HistoryHttpHandler(taskManager));
-        httpServer.createContext("/prioritized", new PrioritizedHttpHandler(taskManager));
+        httpServer.createContext("/tasks", new TasksHttpHandler(taskManager, gson));
+        httpServer.createContext("/subtasks", new SubtasksHttpHandler(taskManager, gson));
+        httpServer.createContext("/epics", new EpicsHttpHandler(taskManager, gson));
+        httpServer.createContext("/history", new HistoryHttpHandler(taskManager, gson));
+        httpServer.createContext("/prioritized", new PrioritizedHttpHandler(taskManager, gson));
         httpServer.start(); // запускаем сервер
         System.out.println("HTTP-сервер запущен на " + port + " порту!");
     }

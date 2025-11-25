@@ -17,6 +17,7 @@ public class HttpTaskManagerEpicsTest {
     private final TaskManager taskManager = Managers.getTaskManager(TypeTaskManager.IN_MEMORY);
     // передаём его в качестве аргумента в конструктор javakanban.manager.HttpTaskServer
     private final Gson gson = (new GsonBuilderForHTTP()).getGson();
+    private final HttpTaskServer httpTaskServer= new HttpTaskServer(8080, taskManager);
 
     public HttpTaskManagerEpicsTest() throws IOException {
     }
@@ -26,12 +27,12 @@ public class HttpTaskManagerEpicsTest {
         taskManager.delTasks();
         taskManager.delSubtasks();
         taskManager.delEpics();
-        HttpTaskServer.start(taskManager);
+        httpTaskServer.start();
     }
 
     @AfterEach
     public void shutDown() {
-        HttpTaskServer.stop();
+        httpTaskServer.stop();
     }
 
     @Test

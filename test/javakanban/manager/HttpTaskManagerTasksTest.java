@@ -28,6 +28,7 @@ public class HttpTaskManagerTasksTest {
     private final TaskManager taskManager = Managers.getTaskManager(TypeTaskManager.IN_MEMORY);
     // передаём его в качестве аргумента в конструктор javakanban.manager.HttpTaskServer
     private final Gson gson = (new GsonBuilderForHTTP()).getGson();
+    private final HttpTaskServer httpTaskServer= new HttpTaskServer(8080, taskManager);
     private final DateTimeFormatter formatterForDataTaskAndCSV = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public HttpTaskManagerTasksTest() throws IOException {
@@ -38,12 +39,12 @@ public class HttpTaskManagerTasksTest {
         taskManager.delTasks();
         taskManager.delSubtasks();
         taskManager.delEpics();
-        HttpTaskServer.start(taskManager);
+        httpTaskServer.start();
     }
 
     @AfterEach
     public void shutDown() {
-        HttpTaskServer.stop();
+        httpTaskServer.stop();
     }
 
     @Test

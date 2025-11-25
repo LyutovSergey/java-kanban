@@ -1,8 +1,10 @@
 package javakanban.manager.HttpHandlers;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import javakanban.exceptions.InMemoryTaskManagerException;
+import javakanban.exceptions.ManagerFileSaveException;
 import javakanban.manager.TaskManager;
 import javakanban.model.Epic;
 import javakanban.model.Status;
@@ -15,8 +17,12 @@ import java.util.List;
 
 
 public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
-    public EpicsHttpHandler(TaskManager taskManager) {
-        super(taskManager);
+    protected Gson gson;
+    protected TaskManager taskManager;
+
+    public EpicsHttpHandler(TaskManager taskManager, Gson gson) {
+        this.taskManager = taskManager;
+        this.gson = gson;
     }
 
     protected boolean isCorrectDataEpic(Epic epic) { // Разрешено только id, name и description
@@ -29,14 +35,17 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        this.exchange = exchange;
         String[] paramsURI =  exchange.getRequestURI().getPath().split("/");
 
+        if (!paramsURI[1].equals("epics")) {
+            sendNotFound(exchange);
+            return; // запрос не соответствует эндпоинту
+        }
         switch (exchange.getRequestMethod()) {
             case "GET": {
                 if (paramsURI.length == 2) { // Запрос всех объектов
                     String json = gson.toJson(taskManager.getEpics());
-                    sendText(json);
+                    sendTextOK(exchange, json);
                     break; // Выход из GET
                 }
 
@@ -44,10 +53,10 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
                 if (paramsURI.length == 3 && getIdFromString(paramsURI[2]).isPresent()) {
                     Epic epic = taskManager.getEpicById(getIdFromString(paramsURI[2]).get());
                     if (epic == null) {
-                        sendNotFound();
+                        sendNotFound(exchange);
                     } else {
                         String json = gson.toJson(epic);
-                        sendText(json);
+                        sendTextOK(exchange, json);
                     }
                     break; // Выход из GET
                 }
@@ -59,50 +68,54 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
 
                     List<Subtask> subtasksOfEpic = taskManager.getSubtasksOfEpicById(getIdFromString(paramsURI[2]).get());
                     if (subtasksOfEpic == null) {
-                        sendNotFound();
+                        sendNotFound(exchange);
                     } else {
                         String json = gson.toJson(subtasksOfEpic);
-                        sendText(json);
+                        sendTextOK(exchange, json);
                     }
                     break; // Выход из GET
                 }
 
                 // Неверный id или URL запроса
-                sendNotFound();
+                sendNotFound(exchange);
                 break; // Выход из GET
             }
             case "POST": { // Разрешено только id, name и description
                 if (paramsURI.length != 2) { // не удалось распознать команду
-                    sendNotFound();
+                    sendNotFound(exchange);
                     break; // Выход из GET
                 }
                 Epic epic, savedEpic;
                 InputStream inputStream = exchange.getRequestBody();
                 String requestBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                if (requestBody.isBlank()) {
+                    sendNotAcceptable(exchange); // Отсутствует тело запроса
+                    break; // Выход из POST по ошибке
+                }
                 // Десериализация
                 try {
                     epic = gson.fromJson(requestBody, Epic.class);
                 } catch (Exception e) {
-                    sendNotAcceptable();
+                    sendNotAcceptable(exchange);
                     break; // Выход из POST по ошибке
                 }
 
                 if (!isCorrectDataEpic(epic)) { // Разрешено только id, name и description
-                    sendNotAcceptable();
+                    sendNotAcceptable(exchange);
                     break; // Выход из POST по ошибке
                 }
 
                 if (epic.getId() != null) { // Попытка обновить объект
                     try {
                         savedEpic = taskManager.updateEpic(epic);
-                    } catch (Exception e) { //ошибка
-                        sendNotAcceptable();
+                    } catch (ManagerFileSaveException e) {
+                        sendInternalError(exchange);
                         break; // Выход из POST по ошибке
                     }
                     if (savedEpic != null) { // успешно
-                        sendCreated();
+                        sendCreated(exchange, gson.toJson(savedEpic));
                     } else {
-                        sendNotFound(); // Объект для обновления не найден
+                        sendNotFound(exchange); // Объект для обновления не найден
                     }
                     break; // Выход из POST
                 }
@@ -110,27 +123,32 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
                 if (epic.getId() == null) {  // Создаем новый объект
                     try {
                         savedEpic = taskManager.addEpic(epic);
-                    } catch (InMemoryTaskManagerException e) { //ошибка
-                        sendNotAcceptable();
+                    } catch (ManagerFileSaveException e) {
+                        sendInternalError(exchange);
                         break; // Выход из POST по ошибке
                     }
                     if (savedEpic != null) { // успешно
-                        sendCreated();
+                        sendCreated(exchange, gson.toJson(savedEpic));
                     } else {
-                        sendNotAcceptable(); // Ошибка при создании
+                        sendNotAcceptable(exchange); // Ошибка при создании
                     }
                     break; // Выход из POST
                 }
 
                 // Неверный id или URL запроса
-                sendNotFound();
+                sendNotFound(exchange);
                 break; // Выход из POST
 
             }
             case "DELETE": {
                 if (paramsURI.length == 2) { // Удаление всех задач
-                    taskManager.delEpics();
-                    sendOk();
+                    try {
+                        taskManager.delEpics();
+                    } catch (ManagerFileSaveException e) {
+                        sendInternalError(exchange);
+                        break; // Выход по ошибке
+                    }
+                    sendTextOK(exchange, "{\"message\" : \"OK\"}");
                     break; // Выход из DELETE
                 }
 
@@ -138,17 +156,22 @@ public class EpicsHttpHandler extends BaseHttpHandler implements HttpHandler {
                 if (paramsURI.length == 3
                         && getIdFromString(paramsURI[2]).isPresent()
                         && taskManager.getEpicById(getIdFromString(paramsURI[2]).get()) != null) {
-                    taskManager.delEpicById(getIdFromString(paramsURI[2]).get());
-                    sendOk();
+                    try {
+                        taskManager.delEpicById(getIdFromString(paramsURI[2]).get());
+                    } catch (ManagerFileSaveException e) {
+                        sendInternalError(exchange);
+                        break; // Выход по ошибке
+                    }
+                    sendTextOK(exchange, "{\"message\" : \"OK\"}");
                     break; // Выход из DELETE
                 }
                 // Неверный id или URL запроса
-                sendNotFound();
+                sendNotFound(exchange);
                 break; // Выход из DELETE
             }
             default:
                 // Неверный id или URL запроса
-                sendNotFound();
+                sendNotFound(exchange);
                 break; // Выход из DELETE
         }
     }
