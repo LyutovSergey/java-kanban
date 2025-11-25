@@ -19,6 +19,7 @@ public class TasksHttpHandler extends BaseHttpHandler implements HttpHandler {
         this.taskManager = taskManager;
         this.gson = gson;
     }
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String[] paramsURI =  exchange.getRequestURI().getPath().split("/");
