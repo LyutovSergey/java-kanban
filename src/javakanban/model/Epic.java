@@ -24,11 +24,18 @@ public class Epic extends Task {
 
     public Epic(Epic epic) {
         super(epic.id, epic.name, epic.description, epic.status, epic.startTime, epic.duration);
-        this.subtasksId = new ArrayList<>(epic.subtasksId);
+        if (epic.subtasksId == null) {
+            this.subtasksId = new ArrayList<>();
+        } else {
+            this.subtasksId = new ArrayList<>(epic.subtasksId);
+        }
         this.endTime = epic.endTime;
     }
 
     public ArrayList<Integer> getSubtasksId() {
+        if (this.subtasksId == null) {
+           return new ArrayList<>();
+        }
         return new ArrayList<>(this.subtasksId);
     }
 
